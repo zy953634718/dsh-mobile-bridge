@@ -1,4 +1,4 @@
-# DSH Mobile Bridge v0.4.0
+# DSH Mobile Bridge v0.4.1
 
 把桌面 **DeepSeek Harness (DSH)** 装进手机：局域网配对即用，无需在手机上安装 DSH/模型客户端。
 
@@ -6,7 +6,7 @@
 
 | 组件 | 版本 | 说明 |
 | --- | --- | --- |
-| Cordis 插件 | **0.4.0** | `packages/dsh-plugin-mobile-bridge`，自带 LAN 反向代理 + PIN 配对 + WebSocket 隧道 |
+| Cordis 插件 | **0.4.1** | `packages/dsh-plugin-mobile-bridge`，自带 LAN 反向代理 + PIN 配对 + WebSocket 隧道 |
 | 手机 Web 页面 | **0.3.20** | PWA/浏览器直达真实桌面 GUI，移动适配（底部 Dock、侧边栏、快捷面板） |
 | 安卓 App | **0.2.3** | 轻量 WebView 外壳（APK），全屏沉浸、可切换局域网/外网地址 |
 
@@ -25,7 +25,7 @@
 
 ## 安装
 
-1. 下载 `dsh-plugin-mobile-bridge-v0.4.0.zip`，解压到任意目录。
+1. 下载 `dsh-plugin-mobile-bridge-v0.4.1.zip`，解压到任意目录。
 2. 在 DSH 桌面端退出后执行：
 
 ```powershell
@@ -53,3 +53,10 @@ powershell -ExecutionPolicy Bypass -File scripts\external-access.ps1
 - 旧版华为 WebView（UA 报 Chrome 99）由网关注入的兼容补丁支持。
 
 **SHA256**：见 Release 附件 `SHA256SUMS.txt`。
+
+## macOS / Linux 兼容（v0.4.1）
+
+- 新增 `install.sh` / `uninstall.sh`：macOS / Linux 下等价于 PowerShell 安装脚本（自动定位 dsh CLI、备份 profile、调用 `dsh plugin add/remove`，支持 `--dry-run`）。
+- 新增 `scripts/external-access.sh`：macOS / Linux 一键外网隧道（localhost.run / serveo / cloudflared，cloudflared 按 darwin/linux 与 arm64/amd64 自动下载）。
+- 插件运行时只依赖 Node.js 内置模块，Windows / macOS / Linux 行为一致；macOS 首次运行需在系统弹窗中允许 dsh 接受传入网络连接。
+- 文档补充 macOS 安装、局域网 IP 查看（`ipconfig getifaddr en0`）与外网访问说明。

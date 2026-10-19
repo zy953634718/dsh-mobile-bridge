@@ -53,7 +53,7 @@
 
 ## 安装
 
-前置条件：Windows + Node.js 24（随 DSH 一起提供即可）、已安装并可运行的 DSH。
+前置条件：Windows / macOS / Linux + Node.js 24（随 DSH 一起提供即可）、已安装并可运行的 DSH。
 无需联网安装任何 npm 包。
 
 > **重要：请先完全退出 DeepSeek Harness（包括托盘图标与后台进程），再运行安装脚本；
@@ -84,6 +84,25 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -DryRun
 
 可用参数：`-Profile`、`-PackagePath`、`-DshCli`、`-DshHome`、`-Port`、`-Firewall`、`-DryRun`。
 脚本本身**绝不会自动运行**，也不会自动重启 DSH。
+
+### 方式 A2：macOS / Linux（bash，与 PowerShell 版等价）
+
+```bash
+cd <本包目录>
+bash install.sh                       # 默认 desktop profile
+bash install.sh --profile web --port 7860
+bash install.sh --dry-run             # 只预览，不修改
+
+# 如果 dsh 不在 PATH 里（DSH 桌面端内置 CLI），显式指定：
+DSH_CLI=/path/to/dsh bash install.sh
+```
+
+卸载：`bash uninstall.sh`。
+
+macOS 提示：
+- 首次启动 DSH 时若系统提示「是否允许 dsh 接受传入网络连接」，请点「允许」；也可以在「系统设置 → 网络 → 防火墙 → 选项」里允许。
+- 查看 Mac 局域网 IP：`ipconfig getifaddr en0`；手机与 Mac 需连接同一 Wi-Fi。
+- 插件运行时只依赖 Node.js 内置模块，Windows / macOS / Linux 行为一致。
 
 ### 方式 B：手动安装
 
@@ -120,7 +139,7 @@ mobile-bridge: proxying http://127.0.0.1:6326 on 0.0.0.0:7860
 
 桥接本身提供的是局域网 HTTP；要在外网（移动网络）访问，可临时套一层反向隧道（localhost.run / serveo / Cloudflare Quick Tunnel），公网侧仍用同一个 6 位 PIN 作为访问码配对。
 
-- 启动脚本：`scripts/external-access.ps1`（默认 `-Provider lhr`，可选 `serveo` / `cloudflared`）；脚本读取本机 `/m/pair/info` 的当前 PIN 并打印「外网地址 + 访问码」。
+- 启动脚本：Windows 用 `scripts/external-access.ps1`，macOS / Linux 用 `bash scripts/external-access.sh`（均支持 `lhr` / `serveo` / `cloudflared`）；脚本读取本机 `/m/pair/info` 的当前 PIN 并打印「外网地址 + 访问码」。
 - 桥接的配对 URL 生成已支持反向代理：优先取 `X-Forwarded-Proto/Host`；无转发头时，公网 Host 自动使用 `https`，回环/内网 Host 保持 `http`。这样隧道下的 token 配对 URL 不会退化成 http。
 - 安全边界：`/m/pair`、`/m/pair/info`、`/healthz` 仅允许**本机直连**——除了 socket 回环外还要求 Host 为 `127.0.0.1/localhost/[::1]` 且无转发头；隧道流量 Host 是公网域名，因此外部无法读取 PIN。
 - PIN 限流按 socket 地址计数（不信任可伪造的 `X-Forwarded-For`）；隧道用户共享回环 key，公网暴力尝试实际不可行。

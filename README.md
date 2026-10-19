@@ -6,7 +6,7 @@
 移动端交互优化、可安装 APK / 添加到主屏幕）。手机端看到的就是桌面 DSH 的真实界面与真实会话，
 因此可以直接用手机聊天、查看/切换会话、审批权限、停止任务、使用全部插件功能。
 
-> v0.3.6 · 仅限**同一局域网**（无云端中继）· 手机端为「沉浸式原生」重设计（H5 与安卓 App 同源）· 安卓安装包为本地自签名侧载包。
+> v0.4.1 · 仅限**同一局域网**（无云端中继）· 手机端为「沉浸式原生」重设计（H5 与安卓 App 同源）· 安卓安装包为本地自签名侧载包。
 
 > 仓库：<https://github.com/zy953634718/dsh-mobile-bridge> · 发布包 / APK 下载：<https://github.com/zy953634718/dsh-mobile-bridge/releases>
 
@@ -87,11 +87,11 @@ docs/media/                          真实运行截图 + 配对/APK 下载二�
 
 ## 安装（安装到你的桌面 DSH）
 
-前置条件：Windows 上的 DeepSeek Harness 桌面端已安装且**至少启动过一次**
+前置条件：Windows / macOS / Linux 上的 DeepSeek Harness 桌面端已安装且**至少启动过一次**
 （初始化 `%USERPROFILE%\.dsh\profiles\desktop`）；电脑与手机在同一局域网。
 
 1. **完全退出 DeepSeek Harness**（托盘退出，确认任务管理器中没有 `DeepSeek Harness.exe`）。
-2. 在本工作区用 PowerShell 运行：
+2. 在本工作区安装插件。**Windows** 用 PowerShell：
 
    ```powershell
    cd <本仓库路径>
@@ -100,6 +100,17 @@ docs/media/                          真实运行截图 + 配对/APK 下载二�
 
    常用参数：`-DryRun` 只预览不修改；`-Firewall` 自动添加 Windows 防火墙入站规则
    （需管理员）；`-Port 7860` 指定网关端口（需与配置一致）。
+
+   **macOS / Linux** 使用等价的 bash 脚本（自动定位 dsh CLI、备份 profile、支持 `--dry-run`）：
+
+   ```bash
+   bash packages/dsh-plugin-mobile-bridge/install.sh
+   # 如果 dsh 不在 PATH 中（DSH 桌面端内置 CLI）：
+   DSH_CLI=/path/to/dsh bash packages/dsh-plugin-mobile-bridge/install.sh
+   ```
+
+   macOS 首次启动 DSH 时若提示「是否允许接受传入网络连接」，请点「允许」；
+   局域网 IP 可用 `ipconfig getifaddr en0` 查看。
 3. **重新启动 DeepSeek Harness**。插件启动日志会打印：
 
    ```
@@ -166,6 +177,12 @@ dsh plugin add <解压目录>\dsh-plugin-mobile-bridge
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File packages\dsh-plugin-mobile-bridge\scripts\external-access.ps1
+```
+
+macOS / Linux：
+
+```bash
+bash packages/dsh-plugin-mobile-bridge/scripts/external-access.sh
 ```
 
 脚本会打印：
@@ -240,6 +257,7 @@ patch 语义是整块替换 config，覆盖时需重述全部想保留的键**�
 | APK 真机安装与启动（v0.2.3：可编辑服务器地址/外网地址，软键盘不再遮挡输入框） | **PASS** | `android/artifacts/`、`docs/media/android-app-pairing.png` |
 | APK 真机连接桌面 DSH（同 Wi-Fi，新设计全屏 + 真实 GUI + Dock） | **PASS** | `docs/media/android-app-connected.png` |
 | App 外网访问（手机 5G → 外网隧道地址 → 访问码配对；App 设置页可切换服务器地址） | **PASS** | 真机 + headless Chrome 验证（见 `docs/media/VERIFY.md`） |
+| macOS / Linux 兼容（插件运行时仅 Node 内置模块；安装/卸载/外网脚本提供 bash 版） | **PASS**（bash 语法 + `--dry-run` 验证；未在真实 macOS 上执行） | `install.sh` / `uninstall.sh` / `scripts/external-access.sh` |
 | 旧版 Android WebView 兼容（华为 WebView / UA 仍报 Chrome 99、局域网 HTTP 非安全上下文） | **PASS**（网关注入兼容补丁：`Promise.withResolvers`、`AbortSignal.any/throwIfAborted`、`crypto.randomUUID` 等） | `packages/dsh-plugin-mobile-bridge/lib/proxy.js` |
 | 真实浏览器手机视口 + 真机路径（LAN origin）配对 → 加载真实 GUI | **PASS** | `docs/media/*.png`、`docs/media/VERIFY.md` |
 
