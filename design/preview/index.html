@@ -1,0 +1,4627 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0f19'/%3E%3Cpath d='M8 10l6 6-6 6M18 22h7' stroke='%232f7bff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="description" content="DSH Mobile 手机端重设计 · 沉浸式原生方向 · 单文件可交互 HTML 预览（无外部请求）">
+<title>DSH Mobile · 手机端重设计评审预览 v2.0</title>
+<style>
+/* ============================================================================
+   DSH Mobile — 手机端重设计评审预览（单文件、自包含、无外部请求）
+   方向：沉浸式原生（Immersive Native）
+   - 左侧：390×844 可交互手机原型
+   - 右侧：屏幕/主题/变量切换、设计说明、改动范围、评审清单、访问地址
+   所有数据均为 mock；真实产品中聊天区仍是实时 DSH GUI iframe。
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- */
+/* review page tokens + reset                                        */
+/* ---------------------------------------------------------------- */
+:root {
+  color-scheme: dark;
+  --rv-bg: #05080f;
+  --rv-bg-2: #080d16;
+  --rv-panel: rgba(14, 21, 35, 0.72);
+  --rv-panel-2: rgba(10, 16, 28, 0.78);
+  --rv-line: rgba(148, 163, 184, 0.14);
+  --rv-line-strong: rgba(148, 163, 184, 0.26);
+  --rv-text: #eef2f8;
+  --rv-text-2: #a8b6cc;
+  --rv-muted: #71809a;
+  --rv-accent-a: #2f7bff;
+  --rv-accent-b: #29d3ff;
+  --rv-accent-soft: rgba(47, 123, 255, 0.16);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "HarmonyOS Sans SC", "MiSans", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans SC", system-ui, sans-serif;
+  --font-mono: "SF Mono", "Cascadia Mono", "Segoe UI Mono", Consolas,
+    "Liberation Mono", monospace;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  color: var(--rv-text);
+  background:
+    radial-gradient(900px 500px at 12% -8%, rgba(47, 123, 255, 0.14), transparent 62%),
+    radial-gradient(760px 480px at 88% 4%, rgba(41, 211, 255, 0.09), transparent 60%),
+    radial-gradient(900px 620px at 50% 108%, rgba(124, 92, 255, 0.07), transparent 68%),
+    linear-gradient(180deg, #05080f 0%, #04070d 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+::selection {
+  background: rgba(47, 123, 255, 0.35);
+}
+
+/* thin scrollbars (desktop review) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.28) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.24);
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------------------------------------------------------------- */
+/* review shell                                                      */
+/* ---------------------------------------------------------------- */
+.review {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.review-top {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 30px;
+  background: linear-gradient(180deg, rgba(5, 8, 15, 0.94), rgba(5, 8, 15, 0.7));
+  border-bottom: 1px solid var(--rv-line);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+}
+
+.review-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+
+.review-brand-copy {
+  min-width: 0;
+}
+
+.review-brand h1 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.review-brand h1 .tag {
+  padding: 2px 7px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #bfe4ff;
+  background: linear-gradient(135deg, rgba(47, 123, 255, 0.3), rgba(41, 211, 255, 0.22));
+  border: 1px solid rgba(41, 211, 255, 0.28);
+}
+
+.review-brand p {
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  color: var(--rv-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.review-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.rv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--rv-line);
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--rv-text-2);
+  font-size: 11px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.rv-pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rv-muted);
+}
+
+.rv-pill.accent {
+  color: #cfe8ff;
+  border-color: rgba(41, 211, 255, 0.3);
+  background: linear-gradient(135deg, rgba(47, 123, 255, 0.18), rgba(41, 211, 255, 0.12));
+}
+
+.rv-pill.accent .dot {
+  background: var(--rv-accent-b);
+  box-shadow: 0 0 8px rgba(41, 211, 255, 0.8);
+}
+
+.review-grid {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 24px 30px 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 432px;
+  gap: 30px;
+  align-items: start;
+}
+
+/* ---------------- left: phone stage ---------------- */
+.stage-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.stage-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--rv-line);
+  background: var(--rv-panel-2);
+  color: var(--rv-text-2);
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.stage-note .live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rv-accent-b);
+  box-shadow: 0 0 10px rgba(41, 211, 255, 0.9);
+  animation: rv-pulse 2.4s ease-in-out infinite;
+}
+
+.stage-note .hint {
+  color: var(--rv-muted);
+  font-family: var(--font-sans);
+}
+
+.phone-stage {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  transition: height 0.45s var(--ease);
+}
+
+.phone-frame {
+  position: relative;
+  flex: 0 0 auto;
+  width: 390px;
+  height: 844px;
+  padding: 9px;
+  border-radius: 58px;
+  background: linear-gradient(155deg, #333c4d 0%, #141a26 26%, #090c13 62%, #222a39 100%);
+  box-shadow:
+    0 60px 150px -50px rgba(0, 0, 0, 0.96),
+    0 30px 80px -40px rgba(47, 123, 255, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  transform-origin: top center;
+  transition:
+    width 0.5s var(--ease),
+    height 0.5s var(--ease),
+    transform 0.35s var(--ease);
+}
+
+.phone-frame::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 55px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+.phone-island {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  z-index: 95;
+  width: 112px;
+  height: 30px;
+  border-radius: 20px;
+  background: #000;
+  transform: translateX(-50%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.phone-home {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  z-index: 96;
+  width: 120px;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(236, 241, 248, 0.55);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.phone-frame.is-landscape {
+  width: 844px;
+  height: 390px;
+  border-radius: 46px;
+}
+
+.phone-frame.is-landscape::before {
+  border-radius: 43px;
+}
+
+.phone-frame.is-landscape .phone-island {
+  top: 11px;
+  width: 86px;
+  height: 22px;
+}
+
+.stage-foot {
+  max-width: 560px;
+  text-align: center;
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--rv-muted);
+}
+
+.stage-foot b {
+  color: var(--rv-text-2);
+  font-weight: 600;
+}
+
+/* ---------------- right: review panel ---------------- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 20px;
+  min-width: 0;
+}
+
+.panel-card {
+  border: 1px solid var(--rv-line);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--rv-panel), var(--rv-panel-2));
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  box-shadow:
+    0 18px 44px -30px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: 14px 15px;
+}
+
+.panel-card.highlight {
+  border-color: rgba(41, 211, 255, 0.26);
+  background:
+    linear-gradient(180deg, rgba(20, 34, 56, 0.82), rgba(10, 17, 30, 0.86));
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 10px;
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--rv-muted);
+}
+
+.panel-title .count {
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-family: var(--font-mono);
+  color: var(--rv-text-2);
+  font-size: 10.5px;
+}
+
+/* screen switcher chips */
+.screen-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.screen-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--rv-line);
+  background: rgba(148, 163, 184, 0.045);
+  color: var(--rv-text-2);
+  text-align: left;
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    transform 0.12s,
+    color 0.18s;
+}
+
+.screen-chip svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.85;
+}
+
+.screen-chip b {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--rv-text);
+  white-space: nowrap;
+}
+
+.screen-chip small {
+  font-size: 10px;
+  color: var(--rv-muted);
+  white-space: nowrap;
+}
+
+.screen-chip:hover {
+  border-color: var(--rv-line-strong);
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.screen-chip.is-active {
+  border-color: rgba(41, 211, 255, 0.5);
+  background: linear-gradient(140deg, rgba(47, 123, 255, 0.22), rgba(41, 211, 255, 0.1));
+  box-shadow: 0 6px 20px -10px rgba(41, 211, 255, 0.55);
+}
+
+.screen-chip.is-active svg,
+.screen-chip.is-active small {
+  color: #bfe4ff;
+  opacity: 0.95;
+}
+
+.screen-chip.is-active b {
+  color: #eaf7ff;
+}
+
+.orientation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--rv-line);
+}
+
+.orientation-row span {
+  font-size: 11.5px;
+  color: var(--rv-muted);
+}
+
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--rv-line);
+  background: rgba(5, 9, 16, 0.65);
+}
+
+.seg button {
+  min-height: 28px;
+  padding: 0 11px;
+  border-radius: 7px;
+  color: var(--rv-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  transition:
+    color 0.16s,
+    background 0.16s;
+}
+
+.seg button.is-active {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(47, 123, 255, 0.9), rgba(41, 211, 255, 0.75));
+  box-shadow: 0 4px 14px -6px rgba(47, 123, 255, 0.8);
+}
+
+/* theme + accent controls */
+.control-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 7px;
+  font-size: 11.5px;
+  color: var(--rv-text-2);
+}
+
+.control-label small {
+  color: var(--rv-muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.theme-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.theme-opt {
+  position: relative;
+  border: 1px solid var(--rv-line);
+  border-radius: 11px;
+  padding: 7px 8px;
+  text-align: left;
+  background: rgba(148, 163, 184, 0.04);
+  transition:
+    border-color 0.16s,
+    background 0.16s;
+}
+
+.theme-opt .swatch {
+  display: block;
+  height: 24px;
+  border-radius: 7px;
+  margin-bottom: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.theme-opt[data-theme-opt="space"] .swatch {
+  background: radial-gradient(120% 120% at 20% 0%, #1c3564, #070b12 70%);
+}
+
+.theme-opt[data-theme-opt="midnight"] .swatch {
+  background: radial-gradient(120% 120% at 20% 0%, #1a2030, #03050a 72%);
+}
+
+.theme-opt[data-theme-opt="nebula"] .swatch {
+  background: radial-gradient(120% 120% at 24% 0%, #3a2f6d, #080b18 72%);
+}
+
+.theme-opt b {
+  display: block;
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--rv-text-2);
+}
+
+.theme-opt.is-active {
+  border-color: rgba(41, 211, 255, 0.5);
+  background: rgba(41, 211, 255, 0.08);
+}
+
+.theme-opt.is-active b {
+  color: var(--rv-text);
+}
+
+.accent-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.accent-opt {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  transition: transform 0.15s var(--ease-spring);
+}
+
+.accent-opt::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  transition: border-color 0.16s;
+}
+
+.accent-opt:hover {
+  transform: scale(1.08);
+}
+
+.accent-opt.is-active::after {
+  border-color: rgba(41, 211, 255, 0.75);
+  box-shadow: 0 0 14px rgba(41, 211, 255, 0.35);
+}
+
+.accent-opt[data-accent-opt="blue"] {
+  background: linear-gradient(135deg, #2f7bff, #29d3ff);
+}
+.accent-opt[data-accent-opt="teal"] {
+  background: linear-gradient(135deg, #14b8a6, #22d3ee);
+}
+.accent-opt[data-accent-opt="violet"] {
+  background: linear-gradient(135deg, #7c5cff, #c084fc);
+}
+.accent-opt[data-accent-opt="green"] {
+  background: linear-gradient(135deg, #10b981, #6ee7b7);
+}
+
+.accent-name {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--rv-muted);
+  font-family: var(--font-mono);
+}
+
+/* variable sliders */
+.var-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 0;
+}
+
+.var-row + .var-row {
+  border-top: 1px dashed var(--rv-line);
+  margin-top: 5px;
+  padding-top: 11px;
+}
+
+.var-row label {
+  flex: 0 0 auto;
+  width: 72px;
+  font-size: 11.5px;
+  color: var(--rv-text-2);
+}
+
+.var-row input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 22px;
+  accent-color: #2f7bff;
+  background: transparent;
+}
+
+.var-row output {
+  flex: 0 0 auto;
+  min-width: 44px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #bfe4ff;
+}
+
+.text-btn {
+  padding: 5px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--rv-line);
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--rv-text-2);
+  font-size: 11px;
+  font-weight: 550;
+  transition:
+    border-color 0.16s,
+    color 0.16s,
+    transform 0.12s;
+}
+
+.text-btn:hover {
+  border-color: var(--rv-line-strong);
+  color: var(--rv-text);
+}
+
+.text-btn:active {
+  transform: scale(0.97);
+}
+
+.panel-foot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+/* description */
+.desc-title {
+  margin: 0 0 5px;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--rv-text);
+}
+
+.desc-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.72;
+  color: var(--rv-text-2);
+}
+
+.desc-list {
+  margin: 9px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.desc-list li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--rv-muted);
+}
+
+.desc-list li::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rv-accent-a), var(--rv-accent-b));
+}
+
+.scope-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.scope-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--rv-text-2);
+}
+
+.scope-list .scope-tag {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 9.5px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: #bfe4ff;
+  background: rgba(41, 211, 255, 0.14);
+  border: 1px solid rgba(41, 211, 255, 0.24);
+}
+
+.scope-list .scope-tag.keep {
+  color: #cbd5e1;
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+/* review checklist */
+.check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 7px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.check:hover {
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.check input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.check .box {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(148, 163, 184, 0.4);
+  background: rgba(5, 9, 16, 0.5);
+  display: grid;
+  place-items: center;
+  transition:
+    border-color 0.16s,
+    background 0.16s;
+}
+
+.check .box svg {
+  width: 10px;
+  height: 10px;
+  color: #04121f;
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.16s,
+    transform 0.2s var(--ease-spring);
+}
+
+.check input:checked + .box {
+  border-color: transparent;
+  background: linear-gradient(135deg, #2f7bff, #29d3ff);
+  box-shadow: 0 0 12px -2px rgba(41, 211, 255, 0.6);
+}
+
+.check input:checked + .box svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.check span.label {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--rv-text-2);
+}
+
+.check .num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--rv-muted);
+  margin-right: 2px;
+}
+
+.progress-track {
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(148, 163, 184, 0.14);
+  overflow: hidden;
+  margin-top: 9px;
+}
+
+.progress-track i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--rv-accent-a), var(--rv-accent-b));
+  box-shadow: 0 0 12px rgba(41, 211, 255, 0.55);
+  transition: width 0.3s var(--ease);
+}
+
+/* phone access card */
+.url-box {
+  display: flex;
+  align-items: stretch;
+  gap: 7px;
+}
+
+.url-code {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--rv-line);
+  background: rgba(5, 9, 16, 0.6);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #bfe4ff;
+  word-break: break-all;
+}
+
+.url-code .ip {
+  color: #fbbf24;
+}
+
+.url-card-note {
+  margin: 8px 0 0;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--rv-muted);
+}
+
+.url-card-note b {
+  color: var(--rv-text-2);
+  font-weight: 600;
+}
+
+.review-foot {
+  padding: 14px 30px 22px;
+  border-top: 1px solid var(--rv-line);
+  color: var(--rv-muted);
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.review-foot b {
+  color: var(--rv-text-2);
+  font-weight: 600;
+}
+
+.review-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 400;
+  transform: translate(-50%, 12px);
+  max-width: min(92vw, 460px);
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--rv-line-strong);
+  background: rgba(12, 18, 30, 0.96);
+  color: var(--rv-text);
+  font-size: 12px;
+  box-shadow: 0 18px 44px -18px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.22s,
+    transform 0.22s var(--ease);
+}
+
+.review-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* logo mark (shared by review header + phone brand) */
+.logo-mark {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  color: #fff;
+  background: linear-gradient(145deg, #1d4ed8 0%, #0ea5e9 56%, #29d3ff 100%);
+  box-shadow:
+    0 6px 20px -6px rgba(14, 165, 233, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.logo-mark svg {
+  width: 18px;
+  height: 18px;
+}
+
+.logo-mark.lg {
+  width: 74px;
+  height: 74px;
+  border-radius: 22px;
+}
+
+.logo-mark.lg svg {
+  width: 38px;
+  height: 38px;
+}
+
+/* ---------------------------------------------------------------- */
+/* phone app: base tokens / themes / ambient / capsule               */
+/* ---------------------------------------------------------------- */
+.app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background:
+    radial-gradient(120% 70% at 50% -12%, var(--accent-soft), transparent 58%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+  border-radius: 50px;
+
+  /* simulated safe areas inside the review frame (real build uses env()):
+     the top value clears the Dynamic Island of the 390×844 frame */
+  --safe-top: 46px;
+  --safe-bottom: 16px;
+
+  --bg: #070b12;
+  --bg-2: #0a101c;
+  --text: #eef2f8;
+  --text-2: #a8b6cc;
+  --muted: #71809a;
+  --line: rgba(148, 163, 184, 0.14);
+  --line-strong: rgba(148, 163, 184, 0.26);
+  --glass: rgba(15, 23, 38, 0.58);
+  --glass-2: rgba(9, 14, 25, 0.76);
+  --glass-inner: rgba(148, 163, 184, 0.07);
+
+  --accent-a: #2f7bff;
+  --accent-b: #29d3ff;
+  --accent-soft: rgba(47, 123, 255, 0.16);
+  --accent-glow: rgba(47, 123, 255, 0.4);
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #fb7185;
+
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 14px;
+
+  --font-scale: 1;
+  --fs-title: calc(21px * var(--font-scale));
+  --fs-h2: calc(18px * var(--font-scale));
+  --fs-body: calc(14.5px * var(--font-scale));
+  --fs-sm: calc(12.5px * var(--font-scale));
+  --fs-xs: calc(11px * var(--font-scale));
+  --fs-cap: calc(9.5px * var(--font-scale));
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.app[data-theme="midnight"] {
+  --bg: #03050a;
+  --bg-2: #05080e;
+  --glass: rgba(12, 18, 30, 0.62);
+  --glass-2: rgba(5, 8, 14, 0.82);
+  --accent-soft: rgba(47, 123, 255, 0.1);
+}
+
+.app[data-theme="nebula"] {
+  --bg: #080b18;
+  --bg-2: #0d1124;
+  --glass: rgba(17, 22, 44, 0.6);
+  --glass-2: rgba(10, 13, 28, 0.8);
+  --accent-soft: rgba(124, 92, 255, 0.18);
+}
+
+.app[data-theme="midnight"] .ambient .g2 {
+  background: radial-gradient(circle, rgba(47, 123, 255, 0.1), transparent 70%);
+}
+
+.app[data-theme="nebula"] .ambient .g1 {
+  background: radial-gradient(circle, rgba(124, 92, 255, 0.24), transparent 70%);
+}
+
+.ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(46px);
+}
+
+.ambient-glow.g1 {
+  top: -110px;
+  right: -90px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--accent-soft), transparent 70%);
+}
+
+.ambient-glow.g2 {
+  bottom: 90px;
+  left: -120px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(124, 92, 255, 0.13), transparent 70%);
+}
+
+.ambient-glow.g3 {
+  top: 34%;
+  left: 52%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(41, 211, 255, 0.07), transparent 70%);
+}
+
+/* subtle grain via layered micro-grids (no image/data-URI) */
+.ambient-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px);
+  mask-image: radial-gradient(120% 90% at 50% 10%, #000 20%, transparent 78%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 10%, #000 20%, transparent 78%);
+}
+
+/* ---------- floating status capsule ---------- */
+.capsule {
+  position: absolute;
+  top: calc(var(--safe-top) + 6px);
+  left: 12px;
+  right: 12px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 7px 7px 12px;
+  border-radius: 19px;
+  border: 1px solid var(--line);
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    0 16px 40px -22px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  transition:
+    transform 0.32s var(--ease),
+    opacity 0.24s;
+}
+
+.app[data-screen="pair"] .capsule,
+.app[data-screen="settings"] .capsule {
+  opacity: 0;
+  transform: translateY(calc(-100% - 20px));
+  pointer-events: none;
+}
+
+.capsule.is-hidden {
+  opacity: 0;
+  transform: translateY(calc(-100% - 20px));
+  pointer-events: none;
+}
+
+.capsule-dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background 0.25s;
+}
+
+.app[data-conn="online"] .capsule-dot {
+  background: var(--success);
+  box-shadow:
+    0 0 0 3px rgba(52, 211, 153, 0.14),
+    0 0 10px rgba(52, 211, 153, 0.7);
+}
+
+.app[data-conn="connecting"] .capsule-dot {
+  background: var(--warning);
+  animation: app-pulse 1.5s ease-in-out infinite;
+}
+
+.capsule-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.capsule-text b {
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.capsule-text small {
+  font-size: calc(10px * var(--font-scale));
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.capsule-btn {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+  background: rgba(148, 163, 184, 0.08);
+  transition:
+    transform 0.14s var(--ease),
+    background 0.16s;
+}
+
+.capsule-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.capsule-btn:active {
+  transform: scale(0.9);
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.capsule-btn.is-spinning svg {
+  animation: app-spin 0.65s linear;
+}
+
+/* ---------- screens ---------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: none;
+  min-height: 0;
+}
+
+.screen.is-active {
+  display: flex;
+  flex-direction: column;
+  animation: screen-in 0.34s var(--ease);
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.994);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes app-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.82);
+  }
+}
+
+@keyframes app-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rv-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* pairing screen                                                    */
+/* ---------------------------------------------------------------- */
+.screen-pair {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: calc(var(--safe-top) + 16px) 18px calc(var(--safe-bottom) + 16px);
+}
+
+.pair-layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+  min-height: 100%;
+}
+
+.pair-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  text-align: center;
+  padding-top: 2px;
+}
+
+.pair-hero h2 {
+  margin: 2px 0 0;
+  font-size: var(--fs-title);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.pair-hero p {
+  margin: 0;
+  max-width: 258px;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+.pair-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--glass-inner);
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.pair-status .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--warning);
+  animation: app-pulse 1.6s ease-in-out infinite;
+}
+
+.pair-card {
+  padding: 15px 13px 13px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  box-shadow:
+    0 26px 60px -34px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.pair-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pair-card-head > span:first-child {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+}
+
+.hint-chip {
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: var(--fs-cap);
+  color: #bfe4ff;
+  background: rgba(41, 211, 255, 0.12);
+  border: 1px solid rgba(41, 211, 255, 0.22);
+}
+
+.pin-row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.pin-cell {
+  aspect-ratio: 1 / 1.16;
+  max-height: 60px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line-strong);
+  background: rgba(148, 163, 184, 0.05);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: calc(23px * var(--font-scale));
+  font-weight: 600;
+  color: var(--text);
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    background 0.18s,
+    transform 0.14s var(--ease-spring);
+}
+
+.pin-cell.is-filled {
+  border-color: rgba(41, 211, 255, 0.55);
+  background: rgba(41, 211, 255, 0.08);
+  box-shadow: 0 0 18px -6px var(--accent-glow);
+}
+
+.pin-cell.is-active {
+  border-color: var(--accent-b);
+  box-shadow:
+    0 0 0 3px rgba(41, 211, 255, 0.12),
+    0 0 18px -6px var(--accent-glow);
+}
+
+.pin-cell .caret {
+  width: 2px;
+  height: 24px;
+  border-radius: 2px;
+  background: var(--accent-b);
+  animation: caret-blink 1.1s steps(1) infinite;
+  opacity: 0.9;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.pin-cell.pop {
+  animation: pin-pop 0.24s var(--ease-spring);
+}
+
+@keyframes pin-pop {
+  0% {
+    transform: scale(0.86);
+  }
+  60% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pair-hint {
+  min-height: 16px;
+  margin: 9px 0 11px;
+  text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+
+.pair-hint.is-error {
+  color: var(--danger);
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.keypad-key {
+  height: 50px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: rgba(148, 163, 184, 0.06);
+  display: grid;
+  place-items: center;
+  font-size: calc(19px * var(--font-scale));
+  font-weight: 550;
+  color: var(--text);
+  transition:
+    background 0.14s,
+    border-color 0.14s,
+    transform 0.1s var(--ease-spring);
+}
+
+.keypad-key svg {
+  width: 19px;
+  height: 19px;
+  opacity: 0.85;
+}
+
+.keypad-key:active {
+  transform: scale(0.94);
+  background: rgba(41, 211, 255, 0.14);
+  border-color: rgba(41, 211, 255, 0.3);
+}
+
+.keypad-key.is-blank {
+  background: transparent;
+  border-color: transparent;
+  pointer-events: none;
+}
+
+.pair-links {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.pair-link {
+  flex: 1 1 0;
+  min-height: 38px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--glass-inner);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+  transition:
+    background 0.16s,
+    transform 0.12s;
+}
+
+.pair-link svg {
+  width: 15px;
+  height: 15px;
+  opacity: 0.85;
+}
+
+.pair-link:active {
+  transform: scale(0.97);
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.pair-link .soon {
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: calc(8.5px * var(--font-scale));
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.pair-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.secure-line {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: var(--fs-cap);
+  line-height: 1.45;
+  color: var(--muted);
+  text-align: center;
+}
+
+.secure-line svg {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  opacity: 0.8;
+}
+
+/* ---------- pairing success animation ---------- */
+.pair-success {
+  position: absolute;
+  inset: 0;
+  z-index: 85;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(47, 123, 255, 0.22), transparent 58%),
+    rgba(4, 7, 13, 0.8);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.26s var(--ease);
+}
+
+.pair-success.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.success-ring {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(52, 211, 153, 0.38);
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.18), transparent 70%);
+  box-shadow: 0 0 60px -12px rgba(52, 211, 153, 0.55);
+  animation: success-pop 0.42s var(--ease-spring);
+}
+
+@keyframes success-pop {
+  0% {
+    transform: scale(0.72);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-ring svg {
+  width: 42px;
+  height: 42px;
+  color: var(--success);
+}
+
+.success-ring svg path {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: check-draw 0.42s 0.08s var(--ease) forwards;
+}
+
+@keyframes check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.pair-success h3 {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 700;
+}
+
+.pair-success p {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+/* ---------------------------------------------------------------- */
+/* chat screen                                                       */
+/* ---------------------------------------------------------------- */
+.screen-chat {
+  position: absolute;
+}
+
+.chat-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: calc(var(--safe-top) + 64px) 14px 148px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+
+.chat-day {
+  align-self: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(148, 163, 184, 0.08);
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+
+.msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  animation: msg-in 0.3s var(--ease);
+}
+
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.msg.user {
+  justify-content: flex-end;
+}
+
+.msg-avatar {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: calc(11px * var(--font-scale));
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(140deg, #1d4ed8, #0ea5e9);
+  box-shadow: 0 4px 14px -6px rgba(14, 165, 233, 0.7);
+}
+
+.msg.user .msg-avatar {
+  order: 2;
+  background: linear-gradient(140deg, rgba(148, 163, 184, 0.32), rgba(148, 163, 184, 0.16));
+  box-shadow: none;
+  color: var(--text);
+}
+
+.bubble {
+  max-width: 79%;
+  padding: 10px 13px;
+  border-radius: 16px;
+  font-size: var(--fs-body);
+  line-height: 1.64;
+  word-break: break-word;
+}
+
+.msg.assistant .bubble {
+  border: 1px solid var(--line);
+  border-top-left-radius: 6px;
+  background: var(--glass);
+  color: var(--text);
+}
+
+.msg.user .bubble {
+  border-bottom-right-radius: 6px;
+  background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+  color: #fff;
+  box-shadow: 0 12px 28px -16px var(--accent-glow);
+}
+
+.bubble b {
+  font-weight: 650;
+}
+
+.bubble code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgba(148, 163, 184, 0.16);
+  font-family: var(--font-mono);
+  font-size: calc(11.5px * var(--font-scale));
+}
+
+.msg.user .bubble code {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.bubble ul {
+  margin: 7px 0 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bubble li {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+}
+
+.bubble .msg-time {
+  display: block;
+  margin-top: 5px;
+  text-align: right;
+  font-size: calc(9px * var(--font-scale));
+  color: var(--muted);
+}
+
+.msg.user .bubble .msg-time {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+/* tool-call card */
+.tool-card {
+  align-self: flex-start;
+  max-width: 86%;
+  margin-left: 34px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--glass-2);
+  animation: msg-in 0.3s var(--ease);
+}
+
+.tool-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.tool-icon {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: #9ecbff;
+  background: rgba(47, 123, 255, 0.16);
+}
+
+.tool-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.tool-head .status {
+  margin-left: auto;
+  font-size: var(--fs-cap);
+  font-weight: 550;
+  color: var(--success);
+}
+
+.tool-files {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.tool-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: var(--glass-inner);
+  font-family: var(--font-mono);
+  font-size: calc(10.5px * var(--font-scale));
+  color: var(--text-2);
+}
+
+.tool-file svg {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  opacity: 0.7;
+}
+
+.tool-file em {
+  margin-left: auto;
+  font-style: normal;
+  color: var(--muted);
+  font-size: calc(9.5px * var(--font-scale));
+}
+
+.typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 15px;
+}
+
+.typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-2);
+  opacity: 0.4;
+  animation: typing 1.25s ease-in-out infinite;
+}
+
+.typing i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+/* composer */
+.composer {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--safe-bottom) + 80px);
+  z-index: 22;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px 7px 10px;
+  border-radius: 22px;
+  border: 1px solid var(--line-strong);
+  background: var(--glass);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  box-shadow:
+    0 22px 46px -24px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.composer-icon {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.composer-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.composer-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.composer-field .cursor {
+  width: 1.5px;
+  height: 15px;
+  border-radius: 2px;
+  background: var(--accent-b);
+  animation: caret-blink 1.1s steps(1) infinite;
+}
+
+.composer-send {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+  box-shadow: 0 8px 22px -8px var(--accent-glow);
+  transition: transform 0.12s var(--ease-spring);
+}
+
+.composer-send svg {
+  width: 17px;
+  height: 17px;
+}
+
+.composer-send:active {
+  transform: scale(0.9);
+}
+
+/* ---------------------------------------------------------------- */
+/* floating native dock                                              */
+/* ---------------------------------------------------------------- */
+.dock {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 8px);
+  z-index: 42;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  padding: 7px 10px;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  background: var(--glass);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  box-shadow:
+    0 24px 54px -26px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition:
+    transform 0.32s var(--ease),
+    opacity 0.24s;
+}
+
+.app[data-screen="pair"] .dock,
+.app[data-screen="settings"] .dock {
+  opacity: 0;
+  transform: translate(-50%, calc(100% + 26px));
+  pointer-events: none;
+}
+
+.dock-btn {
+  position: relative;
+  width: 62px;
+  height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 15px;
+  color: var(--muted);
+  transition:
+    color 0.16s,
+    background 0.16s,
+    transform 0.12s var(--ease-spring);
+}
+
+.dock-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dock-btn span {
+  font-size: calc(9px * var(--font-scale));
+  font-weight: 550;
+  line-height: 1;
+}
+
+.dock-btn:active {
+  transform: scale(0.9);
+}
+
+.dock-btn.is-active {
+  color: #bfe4ff;
+}
+
+.dock-btn.is-active::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+  box-shadow: 0 0 8px var(--accent-b);
+}
+
+.dock-btn-primary {
+  color: #fff;
+}
+
+.dock-fab {
+  width: 38px;
+  height: 38px;
+  margin-top: -8px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+  box-shadow:
+    0 10px 26px -10px var(--accent-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transition: transform 0.16s var(--ease-spring);
+}
+
+.dock-fab svg {
+  width: 18px;
+  height: 18px;
+}
+
+.dock-btn-primary:active .dock-fab {
+  transform: scale(0.88) rotate(90deg);
+}
+
+/* ---------------------------------------------------------------- */
+/* scrim / session drawer                                            */
+/* ---------------------------------------------------------------- */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 48;
+  background: rgba(3, 6, 12, 0.56);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.scrim.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 52;
+  width: 82%;
+  max-width: 330px;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--safe-top) + 14px) 14px calc(var(--safe-bottom) + 14px);
+  border-radius: 0 26px 26px 0;
+  border: 1px solid var(--line);
+  border-left: 0;
+  background: var(--glass-2);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  box-shadow: 32px 0 80px -42px rgba(0, 0, 0, 0.95);
+  transform: translateX(-104%);
+  transition: transform 0.34s var(--ease);
+}
+
+.drawer.is-open {
+  transform: translateX(0);
+}
+
+.drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.drawer-head h2 {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 700;
+}
+
+.drawer-head p {
+  margin: 3px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+
+.icon-ghost {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+  background: rgba(148, 163, 184, 0.08);
+  transition:
+    transform 0.12s,
+    background 0.16s;
+}
+
+.icon-ghost svg {
+  width: 15px;
+  height: 15px;
+}
+
+.icon-ghost:active {
+  transform: scale(0.92);
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 11px;
+  margin-bottom: 10px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--glass-inner);
+  color: var(--muted);
+}
+
+.search-field svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+}
+
+.search-field input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-sm);
+}
+
+.search-field input::placeholder {
+  color: var(--muted);
+}
+
+.new-session-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 42px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  box-shadow: 0 12px 28px -14px var(--accent-glow);
+  transition: transform 0.12s var(--ease-spring);
+}
+
+.new-session-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.new-session-btn:active {
+  transform: scale(0.98);
+}
+
+.session-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 8px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  text-align: left;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.session-item:active {
+  transform: scale(0.99);
+}
+
+.session-item.is-active {
+  background: rgba(47, 123, 255, 0.11);
+  border-color: rgba(41, 211, 255, 0.22);
+}
+
+.session-icon {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: calc(12px * var(--font-scale));
+  font-weight: 700;
+  color: #dbeafe;
+  background: linear-gradient(140deg, rgba(47, 123, 255, 0.35), rgba(41, 211, 255, 0.18));
+  border: 1px solid rgba(41, 211, 255, 0.2);
+}
+
+.session-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.session-main b {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-main small {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-meta {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.session-meta time {
+  font-family: var(--font-mono);
+  font-size: calc(9px * var(--font-scale));
+  color: var(--muted);
+}
+
+.session-meta .unread {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-b);
+  box-shadow: 0 0 8px var(--accent-b);
+}
+
+.drawer-foot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.conn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-cap);
+  color: var(--text-2);
+}
+
+.conn-pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
+}
+
+/* ---------------------------------------------------------------- */
+/* quick-actions sheet                                               */
+/* ---------------------------------------------------------------- */
+.sheet {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 56;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 8px 16px calc(var(--safe-bottom) + 16px);
+  border-radius: 26px 26px 0 0;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  background: var(--glass-2);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  box-shadow: 0 -34px 80px -44px rgba(0, 0, 0, 0.95);
+  transform: translateY(104%);
+  transition: transform 0.36s var(--ease);
+}
+
+.sheet.is-open {
+  transform: translateY(0);
+}
+
+.grabber {
+  width: 36px;
+  height: 4px;
+  margin: 2px auto 0;
+  border-radius: 99px;
+  background: rgba(148, 163, 184, 0.35);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sheet-head h2 {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 700;
+}
+
+.sheet-head p {
+  margin: 3px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+
+.sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.sheet-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 6px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--glass-inner);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  transition:
+    background 0.16s,
+    border-color 0.16s,
+    transform 0.12s;
+}
+
+.sheet-action svg {
+  width: 20px;
+  height: 20px;
+  color: #bfe4ff;
+}
+
+.sheet-action:active {
+  transform: scale(0.96);
+  background: rgba(148, 163, 184, 0.13);
+}
+
+.sheet-action.is-danger {
+  color: var(--danger);
+}
+
+.sheet-action.is-danger svg {
+  color: var(--danger);
+}
+
+.sheet-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: var(--glass-inner);
+}
+
+.sheet-status > .dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+}
+
+.sheet-status > div {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sheet-status b {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.sheet-status small {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+
+.sheet-note {
+  margin: 0;
+  font-size: var(--fs-cap);
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.sheet-note b {
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- */
+/* settings / diagnostics screen                                     */
+/* ---------------------------------------------------------------- */
+.settings-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: calc(var(--safe-top) + 14px) 14px calc(var(--safe-bottom) + 18px);
+}
+
+.settings-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.settings-head > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.settings-head h2 {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 700;
+}
+
+.settings-head p {
+  margin: 2px 0 0;
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-card {
+  padding: 12px 13px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--glass);
+}
+
+.settings-card h3 {
+  margin: 0 0 8px;
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  color: var(--text-2);
+}
+
+.settings-card.is-danger {
+  border-color: rgba(251, 113, 133, 0.26);
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px dashed var(--line);
+}
+
+.set-row:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.set-row .k {
+  flex: 0 0 auto;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.set-row .v {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+
+.set-row .v.mono {
+  font-family: var(--font-mono);
+  font-size: calc(10.5px * var(--font-scale));
+  color: #bfe4ff;
+}
+
+.set-row .v .dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
+}
+
+.set-actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.set-btn {
+  flex: 1 1 118px;
+  min-height: 36px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--glass-inner);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 550;
+  transition:
+    background 0.16s,
+    transform 0.12s;
+}
+
+.set-btn:active {
+  transform: scale(0.97);
+}
+
+.set-btn.is-primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, rgba(47, 123, 255, 0.9), rgba(41, 211, 255, 0.72));
+  color: #fff;
+}
+
+.set-btn.is-danger {
+  border-color: rgba(251, 113, 133, 0.3);
+  color: var(--danger);
+}
+
+.settings-theme-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.settings-theme-row button {
+  flex: 1 1 0;
+  min-height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--glass-inner);
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  font-weight: 550;
+}
+
+.settings-theme-row button.is-active {
+  border-color: rgba(41, 211, 255, 0.4);
+  background: linear-gradient(135deg, rgba(47, 123, 255, 0.55), rgba(41, 211, 255, 0.28));
+  color: #fff;
+}
+
+.settings-accent-row {
+  display: flex;
+  gap: 9px;
+  margin-top: 9px;
+}
+
+.settings-accent-row .accent-opt {
+  width: 24px;
+  height: 24px;
+}
+
+.font-scale-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 9px;
+}
+
+.font-scale-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  accent-color: #2f7bff;
+}
+
+.font-scale-row span {
+  min-width: 40px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: calc(10px * var(--font-scale));
+  color: #bfe4ff;
+}
+
+/* ---------------------------------------------------------------- */
+/* app toast                                                         */
+/* ---------------------------------------------------------------- */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 96px);
+  z-index: 92;
+  max-width: 86%;
+  padding: 9px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  background: rgba(10, 16, 26, 0.95);
+  color: var(--text);
+  font-size: var(--fs-xs);
+  line-height: 1.45;
+  text-align: center;
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  transform: translate(-50%, 8px);
+  pointer-events: none;
+  transition:
+    opacity 0.22s,
+    transform 0.22s var(--ease);
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------------------------------------------------------------- */
+/* landscape phone layout (844 × 390)                                */
+/* ---------------------------------------------------------------- */
+.phone-frame.is-landscape .app {
+  --safe-top: 30px;
+  --safe-bottom: 14px;
+  border-radius: 38px;
+}
+
+.phone-frame.is-landscape .screen-pair {
+  padding: 10px 20px;
+}
+
+.phone-frame.is-landscape .pair-layout {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.phone-frame.is-landscape .pair-hero {
+  align-items: flex-start;
+  gap: 7px;
+  padding: 0;
+  text-align: left;
+}
+
+.phone-frame.is-landscape .pair-hero p {
+  max-width: none;
+}
+
+.phone-frame.is-landscape .pair-hero h2 {
+  font-size: calc(19px * var(--font-scale));
+}
+
+.phone-frame.is-landscape .logo-mark.lg {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+}
+
+.phone-frame.is-landscape .logo-mark.lg svg {
+  width: 28px;
+  height: 28px;
+}
+
+.phone-frame.is-landscape .pair-card {
+  padding: 10px 11px;
+}
+
+.phone-frame.is-landscape .pin-cell {
+  max-height: 42px;
+}
+
+.phone-frame.is-landscape .keypad-key {
+  height: 33px;
+  border-radius: 10px;
+  font-size: calc(16px * var(--font-scale));
+}
+
+.phone-frame.is-landscape .pair-foot {
+  display: none;
+}
+
+.phone-frame.is-landscape .chat-scroll {
+  padding: 52px 18px 92px;
+}
+
+.phone-frame.is-landscape .composer {
+  right: 16px;
+  bottom: calc(var(--safe-bottom) + 64px);
+  left: 16px;
+}
+
+.phone-frame.is-landscape .dock {
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+.phone-frame.is-landscape .dock-btn {
+  width: 56px;
+  height: 40px;
+}
+
+.phone-frame.is-landscape .dock-fab {
+  width: 33px;
+  height: 33px;
+  margin-top: -5px;
+}
+
+.phone-frame.is-landscape .capsule {
+  top: 8px;
+  right: 16px;
+  left: 16px;
+}
+
+.phone-frame.is-landscape .drawer {
+  width: 46%;
+  max-width: none;
+  padding-top: calc(var(--safe-top) + 10px);
+  border-radius: 0 20px 20px 0;
+}
+
+.phone-frame.is-landscape .sheet {
+  max-height: 94%;
+  padding-top: 6px;
+}
+
+.phone-frame.is-landscape .settings-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.phone-frame.is-landscape .settings-card.is-danger {
+  grid-column: 1 / -1;
+}
+
+.phone-frame.is-landscape .settings-scroll {
+  padding: 10px 16px calc(var(--safe-bottom) + 12px);
+}
+
+.phone-frame.is-landscape .phone-home {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* responsive review layout                                          */
+/* ---------------------------------------------------------------- */
+@media (max-width: 1240px) {
+  .review-grid {
+    grid-template-columns: minmax(0, 1fr) 408px;
+    gap: 22px;
+    padding: 20px 22px 8px;
+  }
+}
+
+@media (max-width: 1020px) {
+  .review-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    padding: 18px 18px 6px;
+  }
+
+  .stage-col {
+    order: 1;
+  }
+
+  .panel {
+    order: 2;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .review-top {
+    padding: 12px 18px;
+  }
+
+  .review-brand p {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .review-top-actions .rv-pill:not(.accent) {
+    display: none;
+  }
+
+  .review-grid {
+    padding: 14px 12px 4px;
+  }
+
+  .panel-card {
+    padding: 12px 13px;
+  }
+
+  .review-foot {
+    padding: 12px 16px 18px;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* reduced motion                                                    */
+/* ---------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* preview-specific helpers                                          */
+/* ---------------------------------------------------------------- */
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.mock-badge-line {
+  display: flex;
+  justify-content: center;
+  padding: 2px 0 0;
+}
+
+.mock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--muted);
+  font-size: var(--fs-cap);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.mock-badge svg {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  opacity: 0.8;
+}
+
+.mock-note {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  background: rgba(251, 191, 36, 0.08);
+  color: #f4d58a;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.mock-note b {
+  color: #ffe2a3;
+  font-weight: 650;
+}
+
+.desc-text code,
+.desc-list code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.14);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #bfe4ff;
+}
+
+/* sticky review columns on desktop */
+@media (min-width: 1021px) {
+  .stage-col {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+  }
+
+  .panel {
+    position: sticky;
+    top: 88px;
+    max-height: calc(100vh - 108px);
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+}
+
+/* misc hooks used by the interaction script */
+body {
+  overflow-x: hidden;
+}
+
+.dock-btn.is-spinning svg {
+  animation: app-spin 0.65s linear;
+}
+
+.accent-opt[data-set-accent="blue"] {
+  background: linear-gradient(135deg, #2f7bff, #29d3ff);
+}
+.accent-opt[data-set-accent="teal"] {
+  background: linear-gradient(135deg, #14b8a6, #22d3ee);
+}
+.accent-opt[data-set-accent="violet"] {
+  background: linear-gradient(135deg, #7c5cff, #c084fc);
+}
+.accent-opt[data-set-accent="green"] {
+  background: linear-gradient(135deg, #10b981, #6ee7b7);
+}
+
+.settings-accent-row .accent-opt::after {
+  inset: -3px;
+}
+
+/* ===== CSS_END ===== */
+
+
+</style>
+</head>
+<body>
+<!-- inline SVG sprite: 自包含图标，零外部请求 -->
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5.5 7.5 10 12l-4.5 4.5"/>
+      <path d="M12.5 16.5h6"/>
+    </symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 11a8 8 0 1 0-2.34 5.66"/>
+      <path d="M20 5v6h-6"/>
+    </symbol>
+    <symbol id="i-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 7h9M17 7h3M4 17h3M11 17h9"/>
+      <circle cx="15" cy="7" r="2"/>
+      <circle cx="9" cy="17" r="2"/>
+    </symbol>
+    <symbol id="i-sessions" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="3"/>
+      <path d="M9 4v16"/>
+    </symbol>
+    <symbol id="i-new" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 11.4a8 8 0 0 1-11.6 7.1L4 20l1.5-4.3A8 8 0 1 1 20 11.4Z"/>
+      <path d="M12 8.5v6M9 11.5h6"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="6.5"/>
+      <path d="m16 16 4.5 4.5"/>
+    </symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 6l12 12M18 6 6 18"/>
+    </symbol>
+    <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 5l-7 7 7 7"/>
+    </symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m9 5 7 7-7 7"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4.5 12.5l5 5 10-11"/>
+    </symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/>
+      <path d="M14 3v5h5"/>
+    </symbol>
+    <symbol id="i-attach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 5v14M5 12h14"/>
+    </symbol>
+    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 19V5M6 11l6-6 6 6"/>
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3 5 6v5c0 4.4 3 8.3 7 10 4-1.7 7-5.6 7-10V6l-7-3Z"/>
+      <path d="m9 12 2 2 4-4"/>
+    </symbol>
+    <symbol id="i-android" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.15-.54.4.4 0 0 0-.54.14L16.87 9.1A10.7 10.7 0 0 0 12 8.13c-1.78 0-3.45.35-4.87.97L5.25 5.9a.4.4 0 0 0-.54-.14.4.4 0 0 0-.15.54L6.4 9.48C3.75 10.82 2 13.34 2 16.25h20c0-2.91-1.75-5.43-4.4-6.77ZM6.5 14.25a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8Zm11 0a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8Z"/>
+    </symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3"/>
+      <path d="M4 12h16"/>
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="10" width="14" height="10" rx="2.5"/>
+      <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+    </symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 11.5a8 8 0 0 1-8 8H5l-1.5 1.5V11.5a8 8 0 0 1 8-8h.5a8 8 0 0 1 8 8Z"/>
+    </symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.7 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.7h.09A1.7 1.7 0 0 0 10.12 3.14V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15.1 4.7a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.3 9v.09a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15Z"/>
+    </symbol>
+    <symbol id="i-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 12h4l2.5-6 5 12 2.5-6h4"/>
+    </symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 7V3M15 7V3"/>
+      <path d="M7 7h10v3a5 5 0 0 1-10 0Z"/>
+      <path d="M12 15v6"/>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="8.5"/>
+      <path d="M12 11v5M12 8h.01"/>
+    </symbol>
+    <symbol id="i-backspace" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6H9.5L3 12l6.5 6H20a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1Z"/>
+      <path d="m12 9.5 5 5M17 9.5l-5 5"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4v10M8 10.5l4 4 4-4"/>
+      <path d="M4 19h16"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="review">
+  <header class="review-top">
+    <div class="review-brand">
+      <span class="logo-mark" aria-hidden="true"><svg><use href="#i-logo"/></svg></span>
+      <div class="review-brand-copy">
+        <h1>DSH Mobile <span class="tag">设计评审</span></h1>
+        <p>手机端高保真重设计 · 方向「沉浸式原生」 · 可交互预览 v2.0</p>
+      </div>
+    </div>
+    <div class="review-top-actions">
+      <span class="rv-pill"><span class="dot"></span>单文件 · 无外部请求</span>
+      <span class="rv-pill accent"><span class="dot"></span>待评审</span>
+    </div>
+  </header>
+
+  <main class="review-grid">
+    <!-- ======================= 左侧手机预览 ======================= -->
+    <section class="stage-col">
+      <div class="stage-note">
+        <span class="live-dot" aria-hidden="true"></span>
+        iPhone 14 · 390 × 844
+        <span class="hint">· 原型可直接点击</span>
+      </div>
+
+      <div class="phone-stage" id="phoneStage">
+        <div class="phone-frame" id="phoneFrame">
+          <div class="phone-island" aria-hidden="true"></div>
+
+          <div class="app" id="app" data-screen="pair" data-theme="space" data-conn="connecting">
+            <div class="ambient" aria-hidden="true">
+              <span class="ambient-glow g1"></span>
+              <span class="ambient-glow g2"></span>
+              <span class="ambient-glow g3"></span>
+              <span class="ambient-noise"></span>
+            </div>
+
+            <!-- 悬浮状态胶囊 -->
+            <header class="capsule" id="capsule">
+              <span class="capsule-dot" aria-hidden="true"></span>
+              <div class="capsule-text">
+                <b>DSH Mobile</b>
+                <small id="capsuleSub">已连接 · 192.168.17.174:7860</small>
+              </div>
+              <button class="capsule-btn" id="capsuleRefresh" type="button" aria-label="刷新界面">
+                <svg><use href="#i-refresh"/></svg>
+              </button>
+              <button class="capsule-btn" id="capsuleMore" type="button" aria-label="更多操作">
+                <svg><use href="#i-more"/></svg>
+              </button>
+            </header>
+
+            <!-- ============ 配对页 ============ -->
+            <section class="screen screen-pair is-active" data-screen-id="pair" aria-label="配对页">
+              <div class="pair-layout">
+                <div class="pair-hero">
+                  <span class="logo-mark lg" aria-hidden="true"><svg><use href="#i-logo"/></svg></span>
+                  <h2>连接桌面 DSH</h2>
+                  <p>同一 Wi-Fi 下，把桌面工作区装进手机</p>
+                  <span class="pair-status"><span class="dot" aria-hidden="true"></span>等待配对</span>
+                </div>
+
+                <div class="pair-card">
+                  <div class="pair-card-head">
+                    <span>配对 PIN</span>
+                    <span class="hint-chip">6 位数字</span>
+                  </div>
+                  <div class="pin-row" id="pinRow" role="group" aria-label="6 位配对 PIN">
+                    <div class="pin-cell" data-pin-index="0"></div>
+                    <div class="pin-cell" data-pin-index="1"></div>
+                    <div class="pin-cell" data-pin-index="2"></div>
+                    <div class="pin-cell" data-pin-index="3"></div>
+                    <div class="pin-cell" data-pin-index="4"></div>
+                    <div class="pin-cell" data-pin-index="5"></div>
+                  </div>
+                  <p class="pair-hint" id="pairHint">输入桌面配对页显示的 6 位数字</p>
+                  <div class="keypad" id="keypad" role="group" aria-label="数字键盘">
+                    <button class="keypad-key" type="button" data-key="1">1</button>
+                    <button class="keypad-key" type="button" data-key="2">2</button>
+                    <button class="keypad-key" type="button" data-key="3">3</button>
+                    <button class="keypad-key" type="button" data-key="4">4</button>
+                    <button class="keypad-key" type="button" data-key="5">5</button>
+                    <button class="keypad-key" type="button" data-key="6">6</button>
+                    <button class="keypad-key" type="button" data-key="7">7</button>
+                    <button class="keypad-key" type="button" data-key="8">8</button>
+                    <button class="keypad-key" type="button" data-key="9">9</button>
+                    <span class="keypad-key is-blank" aria-hidden="true"></span>
+                    <button class="keypad-key" type="button" data-key="0">0</button>
+                    <button class="keypad-key" type="button" data-key="back" aria-label="删除">
+                      <svg><use href="#i-backspace"/></svg>
+                    </button>
+                  </div>
+                  <div class="pair-links">
+                    <button class="pair-link" id="scanPair" type="button">
+                      <svg><use href="#i-scan"/></svg>扫码配对<span class="soon">即将支持</span>
+                    </button>
+                    <button class="pair-link" id="pairApk" type="button">
+                      <svg><use href="#i-android"/></svg>下载安卓 App
+                    </button>
+                  </div>
+                </div>
+
+                <div class="pair-foot">
+                  <p class="secure-line">
+                    <svg><use href="#i-shield"/></svg>
+                    仅限同一局域网 · 数据不经过云端
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============ 主界面 ============ -->
+            <section class="screen screen-chat" data-screen-id="chat" aria-label="主界面">
+              <div class="chat-scroll" id="chatScroll">
+                <div class="mock-badge-line">
+                  <span class="mock-badge">
+                    <svg aria-hidden="true"><use href="#i-info"/></svg>
+                    示意：生产环境此处为实时 DSH GUI
+                  </span>
+                </div>
+                <div class="chat-day">今天 14:32</div>
+
+                <div class="msg user">
+                  <div class="bubble">把手机端首页重做成原生 App 的感觉，先出一版高保真预览。<span class="msg-time">14:32</span></div>
+                  <div class="msg-avatar" aria-hidden="true">我</div>
+                </div>
+
+                <div class="msg assistant">
+                  <div class="msg-avatar" aria-hidden="true">D</div>
+                  <div class="bubble">
+                    收到。我按「沉浸式原生」方向出一版可交互预览：
+                    <ul>
+                      <li>悬浮状态胶囊 + 玻璃 Dock</li>
+                      <li>主区域留给真实 GUI，外壳更轻薄</li>
+                      <li>配对页自带数字键盘，避免键盘跳动</li>
+                    </ul>
+                    <span class="msg-time">14:33</span>
+                  </div>
+                </div>
+
+                <div class="tool-card">
+                  <div class="tool-head">
+                    <span class="tool-icon" aria-hidden="true"><svg><use href="#i-file"/></svg></span>
+                    写入文件
+                    <span class="status">✓ 完成 · 128ms</span>
+                  </div>
+                  <div class="tool-files">
+                    <div class="tool-file"><svg><use href="#i-file"/></svg>design/preview/index.html<em>+112 KB</em></div>
+                    <div class="tool-file"><svg><use href="#i-file"/></svg>design/README.md<em>+8 KB</em></div>
+                  </div>
+                </div>
+
+                <div class="msg assistant">
+                  <div class="msg-avatar" aria-hidden="true">D</div>
+                  <div class="bubble">
+                    预览已生成 ✅
+                    <ul>
+                      <li>5 个可交互屏幕</li>
+                      <li>Dock / 抽屉 / 快捷面板均可点击</li>
+                      <li>全部数据为 mock，不请求网络</li>
+                    </ul>
+                    <span class="msg-time">14:34</span>
+                  </div>
+                </div>
+
+                <div class="msg user">
+                  <div class="bubble">Dock 再紧凑一点，别挡住输入框。<span class="msg-time">14:35</span></div>
+                  <div class="msg-avatar" aria-hidden="true">我</div>
+                </div>
+
+                <div class="msg assistant">
+                  <div class="msg-avatar" aria-hidden="true">D</div>
+                  <div class="bubble">
+                    已调整：Dock 改为悬浮胶囊，和输入框留出 8px 安全间距；键盘弹出时只保留输入区。<span class="msg-time">14:35</span>
+                  </div>
+                </div>
+
+                <div class="msg assistant">
+                  <div class="msg-avatar" aria-hidden="true">D</div>
+                  <div class="bubble typing" aria-label="DSH 正在输入">
+                    <i></i><i></i><i></i>
+                  </div>
+                </div>
+              </div>
+
+              <div class="composer" id="composer">
+                <button class="composer-icon" type="button" aria-label="添加附件">
+                  <svg><use href="#i-attach"/></svg>
+                </button>
+                <div class="composer-field">给 DSH 发消息…<span class="cursor" aria-hidden="true"></span></div>
+                <button class="composer-send" id="sendBtn" type="button" aria-label="发送">
+                  <svg><use href="#i-send"/></svg>
+                </button>
+              </div>
+            </section>
+
+            <!-- ============ 设置与诊断 ============ -->
+            <section class="screen screen-settings" data-screen-id="settings" aria-label="设置与诊断">
+              <div class="settings-scroll">
+                <header class="settings-head">
+                  <button class="icon-ghost" id="settingsBack" type="button" aria-label="返回">
+                    <svg><use href="#i-back"/></svg>
+                  </button>
+                  <div>
+                    <h2>设置与诊断</h2>
+                    <p>连接、外观与运行状态</p>
+                  </div>
+                  <span class="conn-pill"><span class="dot" aria-hidden="true"></span>已连接</span>
+                </header>
+
+                <div class="settings-body">
+                  <section class="settings-card">
+                    <h3>连接</h3>
+                    <div class="set-row"><span class="k">服务器地址</span><span class="v mono">192.168.17.174:7860</span></div>
+                    <div class="set-row"><span class="k">状态</span><span class="v"><span class="dot" aria-hidden="true"></span>已连接 · 12 ms</span></div>
+                    <div class="set-row"><span class="k">运行模式</span><span class="v">浏览器预览（APK 内为全屏）</span></div>
+                    <div class="set-actions">
+                      <button class="set-btn" type="button" data-action="edit-server">编辑地址</button>
+                      <button class="set-btn" type="button" data-action="reconnect">重新连接</button>
+                    </div>
+                  </section>
+
+                  <section class="settings-card">
+                    <h3>外观</h3>
+                    <div class="settings-theme-row" id="settingsThemeRow">
+                      <button type="button" data-set-theme="space" class="is-active">深空</button>
+                      <button type="button" data-set-theme="midnight">极夜</button>
+                      <button type="button" data-set-theme="nebula">幽蓝</button>
+                    </div>
+                    <div class="settings-accent-row" id="settingsAccentRow">
+                      <button type="button" class="accent-opt is-active" data-set-accent="blue" aria-label="电光蓝"></button>
+                      <button type="button" class="accent-opt" data-set-accent="teal" aria-label="青碧"></button>
+                      <button type="button" class="accent-opt" data-set-accent="violet" aria-label="紫电"></button>
+                      <button type="button" class="accent-opt" data-set-accent="green" aria-label="森绿"></button>
+                    </div>
+                    <div class="font-scale-row">
+                      <span style="font-size: var(--fs-xs); color: var(--text-2)">字号</span>
+                      <input id="settingsFontScale" type="range" min="90" max="115" step="5" value="100" aria-label="字号缩放">
+                      <span id="settingsFontOut">100%</span>
+                    </div>
+                  </section>
+
+                  <section class="settings-card">
+                    <h3>安卓 App</h3>
+                    <div class="set-row"><span class="k">安装包</span><span class="v mono">DSH-Mobile.apk</span></div>
+                    <div class="set-row"><span class="k">版本</span><span class="v">v0.1.0 · 稳定版</span></div>
+                    <div class="set-actions">
+                      <button class="set-btn is-primary" type="button" data-action="download-apk">
+                        下载 / 更新 APK
+                      </button>
+                    </div>
+                  </section>
+
+                  <section class="settings-card">
+                    <h3>诊断</h3>
+                    <div class="set-row"><span class="k">原生接口</span><span class="v">—（浏览器预览）</span></div>
+                    <div class="set-row"><span class="k">最近错误</span><span class="v">无</span></div>
+                    <div class="set-actions">
+                      <button class="set-btn" type="button" data-action="copy-diag">复制诊断</button>
+                      <button class="set-btn" type="button" data-action="recheck">重新检测</button>
+                    </div>
+                  </section>
+
+                  <section class="settings-card is-danger">
+                    <h3>危险操作</h3>
+                    <div class="set-row"><span class="k">当前设备</span><span class="v">iPhone 14 · 预览</span></div>
+                    <div class="set-actions">
+                      <button class="set-btn is-danger" type="button" data-action="disconnect">
+                        断开连接并回到配对
+                      </button>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============ 遮罩 / 会话抽屉 / 快捷面板 ============ -->
+            <div class="scrim" id="scrim" hidden></div>
+
+            <aside class="drawer" id="drawer" aria-hidden="true" aria-label="会话抽屉">
+              <div class="drawer-head">
+                <div>
+                  <h2>会话</h2>
+                  <p>5 个最近会话</p>
+                </div>
+                <button class="icon-ghost" type="button" data-close-drawer aria-label="关闭会话抽屉">
+                  <svg><use href="#i-close"/></svg>
+                </button>
+              </div>
+              <label class="search-field">
+                <svg aria-hidden="true"><use href="#i-search"/></svg>
+                <input id="sessionSearch" type="search" placeholder="搜索会话…" autocomplete="off">
+              </label>
+              <button class="new-session-btn" type="button" data-new-session>
+                <svg><use href="#i-new"/></svg>新建会话
+              </button>
+              <div class="session-list" id="sessionList">
+                <button class="session-item is-active" type="button" data-session-item>
+                  <span class="session-icon" aria-hidden="true">D</span>
+                  <span class="session-main">
+                    <b>移动端首页重设计</b>
+                    <small>把手机端做成原生 App 的感觉…</small>
+                  </span>
+                  <span class="session-meta"><time>14:32</time><i class="unread" aria-label="未读"></i></span>
+                </button>
+                <button class="session-item" type="button" data-session-item>
+                  <span class="session-icon" aria-hidden="true">P</span>
+                  <span class="session-main">
+                    <b>修复配对页键盘遮挡</b>
+                    <small>iOS 键盘弹出时 PIN 键盘被顶起…</small>
+                  </span>
+                  <span class="session-meta"><time>13:10</time></span>
+                </button>
+                <button class="session-item" type="button" data-session-item>
+                  <span class="session-icon" aria-hidden="true">A</span>
+                  <span class="session-main">
+                    <b>APK 全屏模式验收</b>
+                    <small>确认无顶栏 + 安全区注入正常…</small>
+                  </span>
+                  <span class="session-meta"><time>昨天</time><i class="unread" aria-label="未读"></i></span>
+                </button>
+                <button class="session-item" type="button" data-session-item>
+                  <span class="session-icon" aria-hidden="true">L</span>
+                  <span class="session-main">
+                    <b>DSH 代理延迟排查</b>
+                    <small>局域网 502 的复现路径与日志…</small>
+                  </span>
+                  <span class="session-meta"><time>昨天</time></span>
+                </button>
+                <button class="session-item" type="button" data-session-item>
+                  <span class="session-icon" aria-hidden="true">N</span>
+                  <span class="session-main">
+                    <b>新会话草稿</b>
+                    <small>空白会话</small>
+                  </span>
+                  <span class="session-meta"><time>周一</time></span>
+                </button>
+              </div>
+              <div class="drawer-foot">
+                <span class="conn-pill"><span class="dot" aria-hidden="true"></span>桌面端在线</span>
+                <button class="text-btn" type="button" data-action="open-settings">设置</button>
+              </div>
+            </aside>
+
+            <section class="sheet" id="quickSheet" aria-hidden="true" aria-label="快捷操作面板">
+              <div class="grabber" aria-hidden="true"></div>
+              <div class="sheet-head">
+                <div>
+                  <h2>快捷操作</h2>
+                  <p>常用动作一步直达</p>
+                </div>
+                <button class="icon-ghost" type="button" data-close-sheet aria-label="关闭快捷面板">
+                  <svg><use href="#i-close"/></svg>
+                </button>
+              </div>
+              <div class="sheet-grid">
+                <button class="sheet-action" type="button" data-quick="sessions">
+                  <svg><use href="#i-sessions"/></svg>会话列表
+                </button>
+                <button class="sheet-action" type="button" data-quick="new">
+                  <svg><use href="#i-new"/></svg>新会话
+                </button>
+                <button class="sheet-action" type="button" data-quick="refresh">
+                  <svg><use href="#i-refresh"/></svg>刷新
+                </button>
+                <button class="sheet-action" type="button" data-quick="diagnostics">
+                  <svg><use href="#i-pulse"/></svg>诊断
+                </button>
+                <button class="sheet-action" type="button" data-quick="settings">
+                  <svg><use href="#i-gear"/></svg>设置
+                </button>
+                <button class="sheet-action is-danger" type="button" data-quick="disconnect">
+                  <svg><use href="#i-plug"/></svg>断开连接
+                </button>
+              </div>
+              <div class="sheet-status">
+                <span class="dot" aria-hidden="true"></span>
+                <div>
+                  <b>已连接 · 桌面端</b>
+                  <small>192.168.17.174:7860 · 延迟 12 ms</small>
+                </div>
+                <button class="text-btn" type="button" data-quick="refresh">重连</button>
+              </div>
+              <p class="sheet-note">
+                真机落地：<b>会话 / 新会话</b>映射真实 GUI 的 aria-label 按钮（打开侧边栏 / 新建会话）；
+                刷新 / 更多为本地动作。
+              </p>
+            </section>
+
+            <!-- ============ 底部原生 Dock ============ -->
+            <nav class="dock" id="dock" aria-label="主操作">
+              <button class="dock-btn" type="button" data-dock="sessions" aria-label="会话">
+                <svg><use href="#i-sessions"/></svg><span>会话</span>
+              </button>
+              <button class="dock-btn dock-btn-primary" type="button" data-dock="new" aria-label="新建会话">
+                <span class="dock-fab"><svg><use href="#i-new"/></svg></span><span>新建</span>
+              </button>
+              <button class="dock-btn" type="button" data-dock="refresh" aria-label="刷新">
+                <svg><use href="#i-refresh"/></svg><span>刷新</span>
+              </button>
+              <button class="dock-btn" type="button" data-dock="more" aria-label="更多">
+                <svg><use href="#i-more"/></svg><span>更多</span>
+              </button>
+            </nav>
+
+            <!-- ============ 配对成功动效 ============ -->
+            <div class="pair-success" id="pairSuccess" hidden>
+              <div class="success-ring">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4.5 12.5l5 5 10-11"/>
+                </svg>
+              </div>
+              <h3>配对成功</h3>
+              <p>正在进入桌面工作区…</p>
+            </div>
+
+            <div class="toast" id="appToast" role="status" aria-live="polite"></div>
+          </div>
+
+          <div class="phone-home" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <p class="stage-foot">
+        <b>本次改动：</b>外壳 / 导航 / 配对 / 设置 / 动效。聊天内容区在生产环境仍为
+        <b>实时 DSH GUI iframe</b>，功能与数据不变；预览中以高保真 mock 示意。
+      </p>
+    </section>
+
+    <!-- ======================= 右侧评审面板 ======================= -->
+    <aside class="panel">
+      <div class="panel-card">
+        <p class="panel-title">交互提示 <span class="count">直接点击左侧手机</span></p>
+        <ul class="desc-list">
+          <li>数字键盘输入任意 6 位数字 → 配对成功动效 → 主界面</li>
+          <li>底部 Dock：会话 / 新建 / 刷新 / 更多</li>
+          <li>抽屉、快捷面板、设置页均可开合与切换</li>
+          <li>右侧主题、强调色、字号、圆角实时生效</li>
+        </ul>
+      </div>
+
+      <div class="panel-card">
+        <p class="panel-title">屏幕预览 <span class="count" id="screenCount">1 / 5</span></p>
+        <div class="screen-grid" id="screenGrid">
+          <button class="screen-chip is-active" type="button" data-goto="pair">
+            <svg><use href="#i-lock"/></svg><b>配对</b><small>6 位 PIN</small>
+          </button>
+          <button class="screen-chip" type="button" data-goto="chat">
+            <svg><use href="#i-chat"/></svg><b>主界面</b><small>聊天 + Dock</small>
+          </button>
+          <button class="screen-chip" type="button" data-goto="drawer">
+            <svg><use href="#i-sessions"/></svg><b>会话抽屉</b><small>搜索 / 列表</small>
+          </button>
+          <button class="screen-chip" type="button" data-goto="quick">
+            <svg><use href="#i-more"/></svg><b>快捷面板</b><small>底部 sheet</small>
+          </button>
+          <button class="screen-chip" type="button" data-goto="settings">
+            <svg><use href="#i-gear"/></svg><b>设置诊断</b><small>连接 / 外观</small>
+          </button>
+        </div>
+        <div class="orientation-row">
+          <span>预览方向</span>
+          <div class="seg" id="orientationSeg">
+            <button type="button" data-orient="portrait" class="is-active">竖屏</button>
+            <button type="button" data-orient="landscape">横屏</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <p class="panel-title">主题与强调色 <span class="count" id="themeAccentLabel">深空 · 电光蓝</span></p>
+        <p class="control-label">背景主题</p>
+        <div class="theme-row" id="themeRow">
+          <button class="theme-opt is-active" type="button" data-theme-opt="space">
+            <span class="swatch" aria-hidden="true"></span><b>深空</b>
+          </button>
+          <button class="theme-opt" type="button" data-theme-opt="midnight">
+            <span class="swatch" aria-hidden="true"></span><b>极夜</b>
+          </button>
+          <button class="theme-opt" type="button" data-theme-opt="nebula">
+            <span class="swatch" aria-hidden="true"></span><b>幽蓝</b>
+          </button>
+        </div>
+        <p class="control-label">强调色 <span class="accent-name" id="accentName">#2f7bff → #29d3ff</span></p>
+        <div class="accent-row" id="accentRow">
+          <button class="accent-opt is-active" type="button" data-accent-opt="blue" aria-label="电光蓝"></button>
+          <button class="accent-opt" type="button" data-accent-opt="teal" aria-label="青碧"></button>
+          <button class="accent-opt" type="button" data-accent-opt="violet" aria-label="紫电"></button>
+          <button class="accent-opt" type="button" data-accent-opt="green" aria-label="森绿"></button>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <p class="panel-title">设计变量 <span class="count">实时预览</span></p>
+        <div class="var-row">
+          <label for="fontScale">字号缩放</label>
+          <input id="fontScale" type="range" min="90" max="115" step="5" value="100">
+          <output id="fontScaleOut">100%</output>
+        </div>
+        <div class="var-row">
+          <label for="radiusScale">圆角</label>
+          <input id="radiusScale" type="range" min="14" max="28" step="2" value="24">
+          <output id="radiusOut">24px</output>
+        </div>
+        <div class="panel-foot-row">
+          <button class="text-btn" id="resetDesign" type="button">恢复默认变量</button>
+        </div>
+      </div>
+
+      <div class="panel-card highlight">
+        <p class="panel-title">本屏设计 <span class="count" id="screenIndex">01 / 05</span></p>
+        <h3 class="desc-title" id="descTitle">配对页</h3>
+        <p class="desc-text" id="descText"></p>
+        <ul class="desc-list" id="descList"></ul>
+        <p class="desc-text mock-note" id="mockNote">
+          <b>示意说明：</b>主界面聊天内容为 mock；生产环境该区域为实时 DSH GUI iframe。
+        </p>
+      </div>
+
+      <div class="panel-card">
+        <p class="panel-title">本次改动范围</p>
+        <ul class="scope-list">
+          <li><span class="scope-tag">重设计</span><span>外壳与导航：悬浮状态胶囊、紧凑顶栏隐藏逻辑、玻璃 Dock</span></li>
+          <li><span class="scope-tag">重设计</span><span>配对页（数字键盘 + 成功动效）、会话抽屉、快捷面板、设置 / 诊断</span></li>
+          <li><span class="scope-tag">重设计</span><span>动效、安全区、横屏、reduced-motion 与整体视觉语言</span></li>
+          <li><span class="scope-tag keep">保留</span><span>聊天内容区 = 真实 DSH GUI iframe，功能与数据完全不变</span></li>
+          <li><span class="scope-tag keep">保留</span><span>PIN 校验 / Cookie 认证 / 代理 / APK 全屏模式（不进入本次视觉改动）</span></li>
+        </ul>
+      </div>
+
+      <div class="panel-card">
+        <p class="panel-title">评审清单 <span class="count" id="checkProgress">0 / 8</span></p>
+        <div class="check-list" id="checkList">
+          <label class="check"><input type="checkbox" data-check="pair-flow"><span class="box"><svg><use href="#i-check"/></svg></span><span class="label"><span class="num">01</span>配对流程顺手（PIN + 键盘 + 成功动效）</span></label>
+          <label class="check"><input type="checkbox" data-check="chat-density"><span class="box"><svg><use href="#i-check"/></svg></span><span class="label"><span class="num">02</span>主界面信息密度合适</span></label>
+          <label class="check"><input type="checkbox" data-check="dock"><span class="box"><svg><use href="#i-check"/></svg></span><span class="label"><span class="num">03</span>Dock 位置 / 大小不挡输入框</span></label>
+          <label class="check"><input type="checkbox" data-check="drawer"><span class="box"><svg><use href="#i-check"/></svg></span><span class="label"><span class="num">04</span>抽屉与快捷面板开合手感</span></label>
+          <label class="check"><input type="checkbox" data-check="readability"><span class="box"><svg><use href="#i-check"/></svg></span><span class="label"><span class="num">05</span>深色可读性与对比度</span></label>
+          <label class="check"><input type="checkbox" data-check="typography"><span class="box"><svg><use href="#i-check"/></svg></span><span class="label"><span class="num">06</span>中文字体与排版</span></label>
+          <label class="check"><input type="checkbox" data-check="landscape"><span class="box"><svg><use href="#i-check"/></svg></span><span class="label"><span class="num">07</span>横屏（844 × 390）可用</span></label>
+          <label class="check"><input type="checkbox" data-check="native-feel"><span class="box"><svg><use href="#i-check"/></svg></span><span class="label"><span class="num">08</span>整体像原生 App（无明显「套壳感」）</span></label>
+        </div>
+        <div class="progress-track" aria-hidden="true"><i id="checkBar"></i></div>
+        <div class="panel-foot-row">
+          <button class="text-btn" id="resetChecks" type="button">重置清单</button>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <p class="panel-title">手机访问预览 <span class="count">同一 Wi-Fi</span></p>
+        <div class="url-box">
+          <div class="url-code" id="previewUrl">http://<span class="ip">&lt;桌面 IP&gt;</span>:7860/m/design-preview/</div>
+          <button class="text-btn" id="copyUrl" type="button">复制</button>
+        </div>
+        <p class="url-card-note">
+          把 <b>&lt;桌面 IP&gt;</b> 换成电脑局域网地址，预览由 Lead 挂载。也可直接双击本文件以
+          <b>file://</b> 打开，单文件无任何外部依赖。
+        </p>
+      </div>
+
+      <div class="panel-card">
+        <p class="panel-title">评审通过后</p>
+        <ul class="desc-list">
+          <li>Lead 将本设计落地到 <code style="font-family: var(--font-mono); font-size: 10.5px">public/</code>（外壳层，聊天区仍接真实 GUI）</li>
+          <li>ui-smoke 回归 + tests/run-all.ps1 10/10 验收</li>
+          <li>重建签名 APK → 真机安装 → 真机配对验证</li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="review-foot">
+    <b>DSH Mobile · 设计评审预览 v2.0</b> · 所有数据均为 mock，无任何网络请求 ·
+    评审通过后进入生产落地与 APK 重建
+  </footer>
+</div>
+
+<div class="review-toast" id="reviewToast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================================
+ * DSH Mobile · 设计评审预览 — 交互脚本（原生 JS，无依赖、无网络）
+ * 左侧手机原型：配对 PIN / 数字键盘 / Dock / 抽屉 / 快捷面板 / 设置。
+ * 右侧评审面板：屏幕切换、主题与强调色、设计变量、说明、清单、复制地址。
+ * 所有数据均为 mock；生产环境聊天区仍是真实 DSH GUI iframe。
+ * ========================================================================== */
+(() => {
+  'use strict';
+
+  const $ = (id) => document.getElementById(id);
+  const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
+
+  /* ------------------------------------------------------------------ */
+  /* data                                                                */
+  /* ------------------------------------------------------------------ */
+
+  const ACCENTS = {
+    blue: { name: '电光蓝', code: '#2f7bff → #29d3ff', a: '#2f7bff', b: '#29d3ff', soft: 'rgba(47,123,255,.16)', glow: 'rgba(47,123,255,.4)' },
+    teal: { name: '青碧', code: '#14b8a6 → #22d3ee', a: '#14b8a6', b: '#22d3ee', soft: 'rgba(20,184,166,.15)', glow: 'rgba(20,184,166,.38)' },
+    violet: { name: '紫电', code: '#7c5cff → #c084fc', a: '#7c5cff', b: '#c084fc', soft: 'rgba(124,92,255,.17)', glow: 'rgba(124,92,255,.4)' },
+    green: { name: '森绿', code: '#10b981 → #6ee7b7', a: '#10b981', b: '#6ee7b7', soft: 'rgba(16,185,129,.15)', glow: 'rgba(16,185,129,.38)' },
+  };
+
+  const THEMES = { space: '深空', midnight: '极夜', nebula: '幽蓝' };
+
+  const SCREEN_META = {
+    pair: {
+      index: '01 / 05',
+      title: '配对页',
+      text: '品牌、PIN 输入与数字键盘在首屏内完成全部配对动作；配对成功后即时切换到主界面。',
+      bullets: [
+        '自带数字键盘，避免系统键盘把 PIN 格顶飞的跳变',
+        '成功动效 + 「正在进入工作区」衔接，减少等待焦虑',
+        '扫码配对（即将支持）与 APK 下载作为次级入口',
+      ],
+      mockNote: false,
+    },
+    chat: {
+      index: '02 / 05',
+      title: '主界面（聊天 + Dock）',
+      text: '聊天区铺满全屏，悬浮状态胶囊可自动隐藏，底部 Dock 悬浮于输入框下方安全区域。',
+      bullets: [
+        '真实落地：此区域是实时 DSH GUI iframe，功能与数据完全保留',
+        '状态胶囊滚动隐藏；Dock 承担会话 / 新建 / 刷新 / 更多',
+        '输入框与 Dock 之间保留 8px 安全间距，不互相遮挡',
+      ],
+      mockNote: true,
+    },
+    drawer: {
+      index: '03 / 05',
+      title: '会话抽屉',
+      text: '左侧滑出的玻璃抽屉，承载搜索、最近会话与新建会话；遮罩模糊保留上下文。',
+      bullets: [
+        '会话条目含标题 / 摘要 / 时间 / 未读点，点击即切换',
+        '顶部搜索可实时过滤（预览可直接输入）',
+        '底部显示桌面端在线状态，随时进入设置',
+      ],
+      mockNote: true,
+    },
+    quick: {
+      index: '04 / 05',
+      title: '快捷面板',
+      text: '底部 sheet 以 3×2 网格收纳高频动作，并显示当前连接与桌面地址；替代原悬浮 FAB。',
+      bullets: [
+        '会话列表 / 新会话 / 刷新 / 诊断 / 设置 / 断开连接',
+        '真机落地：会话与新会话映射真实 GUI 的 aria-label 按钮',
+        '刷新 / 更多为本地动作，不触碰 GUI 内部状态',
+      ],
+      mockNote: true,
+    },
+    settings: {
+      index: '05 / 05',
+      title: '设置与诊断',
+      text: '连接、外观、安卓 App、诊断与危险操作分区呈现，主题/字号与右侧面板双向同步。',
+      bullets: [
+        '服务器地址、连接状态、延迟与运行模式一眼可见',
+        '外观支持主题、强调色、字号实时调整',
+        '「断开连接并回到配对」用于完整重走配对流程',
+      ],
+      mockNote: false,
+    },
+  };
+
+  const DEFAULT_VARS = { fontScale: 100, radius: 24 };
+  const CHECK_KEY = 'dsh-mobile-design-review-v2';
+
+  /* ------------------------------------------------------------------ */
+  /* state                                                               */
+  /* ------------------------------------------------------------------ */
+
+  const state = {
+    screen: 'pair',
+    paired: false,
+    drawerOpen: false,
+    sheetOpen: false,
+    digits: '',
+    theme: 'space',
+    accent: 'blue',
+    fontScale: DEFAULT_VARS.fontScale,
+    radius: DEFAULT_VARS.radius,
+    orientation: 'portrait',
+    checklist: {},
+    successTimer: null,
+    successBusy: false,
+    capsuleHoldUntil: 0,
+    toastTimer: null,
+    reviewToastTimer: null,
+    refreshTimer: null,
+    scaleRaf: 0,
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* refs                                                                */
+  /* ------------------------------------------------------------------ */
+
+  const el = {
+    app: $('app'),
+    frame: $('phoneFrame'),
+    stage: $('phoneStage'),
+    capsule: $('capsule'),
+    capsuleSub: $('capsuleSub'),
+    capsuleRefresh: $('capsuleRefresh'),
+    capsuleMore: $('capsuleMore'),
+    pinRow: $('pinRow'),
+    pinCells: $$('.pin-cell'),
+    pinHint: $('pairHint'),
+    keypad: $('keypad'),
+    chatScroll: $('chatScroll'),
+    scrim: $('scrim'),
+    drawer: $('drawer'),
+    sheet: $('quickSheet'),
+    dock: $('dock'),
+    sessionList: $('sessionList'),
+    sessionSearch: $('sessionSearch'),
+    pairSuccess: $('pairSuccess'),
+    appToast: $('appToast'),
+    reviewToast: $('reviewToast'),
+    screenChips: $$('.screen-chip'),
+    screenCount: $('screenCount'),
+    descTitle: $('descTitle'),
+    descText: $('descText'),
+    descList: $('descList'),
+    descIndex: $('screenIndex'),
+    mockNote: $('mockNote'),
+    themeOpts: $$('[data-theme-opt]'),
+    accentOpts: $$('[data-accent-opt]'),
+    settingsThemeRow: $('settingsThemeRow'),
+    settingsAccentRow: $('settingsAccentRow'),
+    themeAccentLabel: $('themeAccentLabel'),
+    accentName: $('accentName'),
+    fontScale: $('fontScale'),
+    fontScaleOut: $('fontScaleOut'),
+    settingsFontScale: $('settingsFontScale'),
+    settingsFontOut: $('settingsFontOut'),
+    radiusScale: $('radiusScale'),
+    radiusOut: $('radiusOut'),
+    orientationSeg: $('orientationSeg'),
+    checklistInputs: $$('#checkList input[data-check]'),
+    checkProgress: $('checkProgress'),
+    checkBar: $('checkBar'),
+    previewUrl: $('previewUrl'),
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* toast helpers                                                       */
+  /* ------------------------------------------------------------------ */
+
+  function appToast(message) {
+    if (!el.appToast) return;
+    el.appToast.textContent = message;
+    el.appToast.classList.add('is-visible');
+    clearTimeout(state.toastTimer);
+    state.toastTimer = setTimeout(() => el.appToast.classList.remove('is-visible'), 2200);
+  }
+
+  function reviewToast(message) {
+    if (!el.reviewToast) return;
+    el.reviewToast.textContent = message;
+    el.reviewToast.classList.add('is-visible');
+    clearTimeout(state.reviewToastTimer);
+    state.reviewToastTimer = setTimeout(() => el.reviewToast.classList.remove('is-visible'), 2400);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* screens / chips / description                                       */
+  /* ------------------------------------------------------------------ */
+
+  function currentScreenKey() {
+    if (state.drawerOpen) return 'drawer';
+    if (state.sheetOpen) return 'quick';
+    return state.screen;
+  }
+
+  function syncChips() {
+    const key = currentScreenKey();
+    el.screenChips.forEach((chip) => {
+      chip.classList.toggle('is-active', chip.dataset.goto === key);
+    });
+    const order = ['pair', 'chat', 'drawer', 'quick', 'settings'];
+    const index = Math.max(0, order.indexOf(key));
+    if (el.screenCount) el.screenCount.textContent = index + 1 + ' / 5';
+    updateDescription(key);
+  }
+
+  function updateDescription(key) {
+    const meta = SCREEN_META[key] || SCREEN_META.chat;
+    if (el.descTitle) el.descTitle.textContent = meta.title;
+    if (el.descIndex) el.descIndex.textContent = meta.index;
+    if (el.descText) el.descText.textContent = meta.text;
+    if (el.descList) {
+      el.descList.textContent = '';
+      meta.bullets.forEach((bullet) => {
+        const li = document.createElement('li');
+        li.textContent = bullet;
+        el.descList.appendChild(li);
+      });
+    }
+    if (el.mockNote) el.mockNote.hidden = !meta.mockNote;
+  }
+
+  function showScreen(name) {
+    state.screen = name;
+    el.app.dataset.screen = name;
+    $$('.screen').forEach((screen) => {
+      screen.classList.toggle('is-active', screen.dataset.screenId === name);
+    });
+    if (name === 'chat') {
+      state.capsuleHoldUntil = Date.now() + 1000;
+      requestAnimationFrame(() => {
+        if (el.chatScroll) el.chatScroll.scrollTop = el.chatScroll.scrollHeight;
+        el.capsule.classList.remove('is-hidden');
+      });
+    }
+    syncChips();
+  }
+
+  function setPaired(paired) {
+    state.paired = !!paired;
+    el.app.dataset.conn = state.paired ? 'online' : 'connecting';
+    if (el.capsuleSub) {
+      el.capsuleSub.textContent = state.paired ? '已连接 · 192.168.17.174:7860' : '等待配对';
+    }
+    if (!state.paired) {
+      state.digits = '';
+      renderPin();
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* pairing: PIN + keypad                                               */
+  /* ------------------------------------------------------------------ */
+
+  function renderPin(popIndex) {
+    el.pinCells.forEach((cell, index) => {
+      cell.textContent = '';
+      const filled = index < state.digits.length;
+      cell.classList.toggle('is-filled', filled);
+      cell.classList.toggle('is-active', index === state.digits.length);
+      if (filled) {
+        cell.textContent = state.digits[index];
+        if (popIndex === index) {
+          cell.classList.remove('pop');
+          void cell.offsetWidth;
+          cell.classList.add('pop');
+        }
+      } else if (index === state.digits.length) {
+        const caret = document.createElement('span');
+        caret.className = 'caret';
+        cell.appendChild(caret);
+      }
+    });
+    if (el.pinHint) {
+      el.pinHint.classList.remove('is-error');
+      if (state.digits.length === 0) el.pinHint.textContent = '输入桌面配对页显示的 6 位数字';
+      else if (state.digits.length < 6) el.pinHint.textContent = '继续输入…（演示：任意 6 位数字）';
+      else el.pinHint.textContent = '正在校验 PIN…';
+    }
+  }
+
+  function pressDigit(digit) {
+    if (state.successTimer || state.successBusy) return;
+    if (state.digits.length >= 6) return;
+    state.digits += digit;
+    renderPin(state.digits.length - 1);
+    if (state.digits.length === 6) {
+      if (el.pinHint) el.pinHint.textContent = '正在校验 PIN…';
+      state.successTimer = setTimeout(showPairSuccess, 220);
+    }
+  }
+
+  function pressBackspace() {
+    if (state.successTimer || state.successBusy) return;
+    if (!state.digits) return;
+    state.digits = state.digits.slice(0, -1);
+    renderPin();
+  }
+
+  function showPairSuccess() {
+    if (state.successBusy) return;
+    if (state.successTimer) {
+      clearTimeout(state.successTimer);
+      state.successTimer = null;
+    }
+    if (!el.pairSuccess) return;
+    state.successBusy = true;
+    el.pairSuccess.hidden = false;
+    requestAnimationFrame(() => el.pairSuccess.classList.add('is-visible'));
+    setTimeout(() => {
+      el.pairSuccess.classList.remove('is-visible');
+      setTimeout(() => {
+        el.pairSuccess.hidden = true;
+      }, 280);
+      setPaired(true);
+      showScreen('chat');
+      appToast('已连接到桌面 DSH');
+      state.digits = '';
+      state.successBusy = false;
+    }, 1050);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* overlays: scrim / drawer / sheet                                    */
+  /* ------------------------------------------------------------------ */
+
+  function showScrim() {
+    if (!el.scrim) return;
+    el.scrim.hidden = false;
+    requestAnimationFrame(() => el.scrim.classList.add('is-visible'));
+  }
+
+  function hideScrim() {
+    if (!el.scrim) return;
+    el.scrim.classList.remove('is-visible');
+    setTimeout(() => {
+      if (!state.drawerOpen && !state.sheetOpen) el.scrim.hidden = true;
+    }, 260);
+  }
+
+  function syncDockActive() {
+    $$('.dock-btn').forEach((button) => {
+      const action = button.dataset.dock;
+      button.classList.toggle(
+        'is-active',
+        (action === 'sessions' && state.drawerOpen) || (action === 'more' && state.sheetOpen),
+      );
+    });
+  }
+
+  function openDrawer() {
+    if (state.screen !== 'chat') return;
+    if (state.sheetOpen) closeSheet();
+    state.drawerOpen = true;
+    el.drawer.classList.add('is-open');
+    el.drawer.setAttribute('aria-hidden', 'false');
+    showScrim();
+    syncDockActive();
+    syncChips();
+  }
+
+  function closeDrawer() {
+    if (!state.drawerOpen) return;
+    state.drawerOpen = false;
+    el.drawer.classList.remove('is-open');
+    el.drawer.setAttribute('aria-hidden', 'true');
+    hideScrim();
+    syncDockActive();
+    syncChips();
+  }
+
+  function openSheet() {
+    if (state.screen !== 'chat') return;
+    if (state.drawerOpen) closeDrawer();
+    state.sheetOpen = true;
+    el.sheet.classList.add('is-open');
+    el.sheet.setAttribute('aria-hidden', 'false');
+    showScrim();
+    syncDockActive();
+    syncChips();
+  }
+
+  function closeSheet() {
+    if (!state.sheetOpen) return;
+    state.sheetOpen = false;
+    el.sheet.classList.remove('is-open');
+    el.sheet.setAttribute('aria-hidden', 'true');
+    hideScrim();
+    syncDockActive();
+    syncChips();
+  }
+
+  function closeOverlays() {
+    closeDrawer();
+    closeSheet();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* actions                                                             */
+  /* ------------------------------------------------------------------ */
+
+  function refreshAction() {
+    el.capsuleRefresh.classList.add('is-spinning');
+    const dockRefresh = $$('.dock-btn').find((button) => button.dataset.dock === 'refresh');
+    if (dockRefresh) dockRefresh.classList.add('is-spinning');
+    clearTimeout(state.refreshTimer);
+    state.refreshTimer = setTimeout(() => {
+      el.capsuleRefresh.classList.remove('is-spinning');
+      if (dockRefresh) dockRefresh.classList.remove('is-spinning');
+    }, 700);
+    appToast('界面已刷新');
+  }
+
+  function newSession() {
+    closeOverlays();
+    setPaired(true);
+    if (state.screen !== 'chat') showScreen('chat');
+    appToast('已新建会话 · 空白会话');
+    if (el.chatScroll) {
+      requestAnimationFrame(() => {
+        el.chatScroll.scrollTop = el.chatScroll.scrollHeight;
+      });
+    }
+  }
+
+  function disconnect() {
+    closeOverlays();
+    setPaired(false);
+    showScreen('pair');
+    appToast('已断开连接，请重新配对');
+  }
+
+  function openSettings() {
+    closeOverlays();
+    setPaired(true);
+    showScreen('settings');
+  }
+
+  function handleAction(action) {
+    switch (action) {
+      case 'edit-server':
+        appToast('预览：服务器地址编辑为 mock（真机为可编辑输入）');
+        break;
+      case 'reconnect':
+        refreshAction();
+        appToast('正在重新连接桌面端…');
+        break;
+      case 'download-apk':
+        appToast('预览：APK 下载入口 → /m/download/DSH-Mobile.apk');
+        break;
+      case 'copy-diag':
+        copyText('DSH Mobile 诊断 · 模式=预览 · 连接=已连接 · 延迟=12ms · 最近错误=无');
+        break;
+      case 'recheck':
+        appToast('诊断完成：连接正常 · 延迟 12 ms');
+        break;
+      case 'disconnect':
+        disconnect();
+        break;
+      case 'open-settings':
+        openSettings();
+        break;
+      default:
+        break;
+    }
+  }
+
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (_) {
+      /* fall through */
+    }
+    try {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.select();
+      const ok = document.execCommand('copy');
+      area.remove();
+      return ok;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function copyDiagnostics() {
+    const ok = await copyText('DSH Mobile 诊断 · 模式=预览 · 连接=已连接 · 延迟=12ms · 最近错误=无');
+    appToast(ok ? '诊断信息已复制' : '复制失败，请手动选择');
+  }
+
+  async function copyPreviewUrl() {
+    const text = 'http://<桌面 IP>:7860/m/design-preview/';
+    const ok = await copyText(text);
+    reviewToast(ok ? '已复制预览地址（记得替换 <桌面 IP>）' : '复制失败，请手动选择地址');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* theme / accent / design variables                                   */
+  /* ------------------------------------------------------------------ */
+
+  function applyTheme(theme) {
+    if (!THEMES[theme]) return;
+    state.theme = theme;
+    el.app.dataset.theme = theme;
+    el.themeOpts.forEach((opt) => opt.classList.toggle('is-active', opt.dataset.themeOpt === theme));
+    if (el.settingsThemeRow) {
+      $$('button', el.settingsThemeRow).forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.setTheme === theme);
+      });
+    }
+    updateThemeAccentLabel();
+  }
+
+  function applyAccent(accent) {
+    const preset = ACCENTS[accent];
+    if (!preset) return;
+    state.accent = accent;
+    el.app.style.setProperty('--accent-a', preset.a);
+    el.app.style.setProperty('--accent-b', preset.b);
+    el.app.style.setProperty('--accent-soft', preset.soft);
+    el.app.style.setProperty('--accent-glow', preset.glow);
+    el.accentOpts.forEach((opt) => opt.classList.toggle('is-active', opt.dataset.accentOpt === accent));
+    if (el.settingsAccentRow) {
+      $$('button', el.settingsAccentRow).forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.setAccent === accent);
+      });
+    }
+    if (el.accentName) el.accentName.textContent = preset.code;
+    updateThemeAccentLabel();
+  }
+
+  function updateThemeAccentLabel() {
+    if (el.themeAccentLabel) {
+      el.themeAccentLabel.textContent = THEMES[state.theme] + ' · ' + ACCENTS[state.accent].name;
+    }
+  }
+
+  function applyFontScale(scale, source) {
+    const value = Math.max(85, Math.min(120, Number(scale) || 100));
+    state.fontScale = value;
+    el.app.style.setProperty('--font-scale', String(value / 100));
+    if (el.fontScale) el.fontScale.value = String(value);
+    if (el.fontScaleOut) el.fontScaleOut.textContent = value + '%';
+    if (el.settingsFontScale) el.settingsFontScale.value = String(value);
+    if (el.settingsFontOut) el.settingsFontOut.textContent = value + '%';
+    if (source !== 'settings' && el.settingsFontScale) {
+      /* both controls stay in sync via values above */
+    }
+  }
+
+  function applyRadius(radius) {
+    const value = Math.max(14, Math.min(28, Number(radius) || DEFAULT_VARS.radius));
+    state.radius = value;
+    el.app.style.setProperty('--radius-lg', value + 'px');
+    el.app.style.setProperty('--radius-md', Math.max(12, value - 6) + 'px');
+    el.app.style.setProperty('--radius-sm', Math.max(10, value - 10) + 'px');
+    if (el.radiusScale) el.radiusScale.value = String(value);
+    if (el.radiusOut) el.radiusOut.textContent = value + 'px';
+  }
+
+  function resetDesignVars() {
+    applyFontScale(DEFAULT_VARS.fontScale);
+    applyRadius(DEFAULT_VARS.radius);
+    reviewToast('设计变量已恢复默认');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* orientation / scale                                                 */
+  /* ------------------------------------------------------------------ */
+
+  function applyScale() {
+    const landscape = state.orientation === 'landscape';
+    const frameW = landscape ? 844 : 390;
+    const frameH = landscape ? 390 : 844;
+    const column = el.stage ? el.stage.parentElement : null;
+    const availableW = Math.max(220, (column ? column.clientWidth : 600) - 6);
+    const availableH = Math.max(280, window.innerHeight - 230);
+    const scale = Math.max(0.42, Math.min(1, availableW / frameW, availableH / frameH));
+    el.frame.style.transform = 'scale(' + scale.toFixed(4) + ')';
+    el.frame.style.transformOrigin = 'top center';
+    if (el.stage) {
+      el.stage.style.height = Math.round(frameH * scale) + 'px';
+      el.stage.style.width = '100%';
+    }
+  }
+
+  function scheduleScale() {
+    cancelAnimationFrame(state.scaleRaf);
+    state.scaleRaf = requestAnimationFrame(applyScale);
+  }
+
+  function setOrientation(orientation) {
+    state.orientation = orientation === 'landscape' ? 'landscape' : 'portrait';
+    el.frame.classList.toggle('is-landscape', state.orientation === 'landscape');
+    if (el.orientationSeg) {
+      $$('button', el.orientationSeg).forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.orient === state.orientation);
+      });
+    }
+    scheduleScale();
+    if (state.orientation === 'landscape') reviewToast('已切换到横屏预览 844 × 390');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* checklist                                                           */
+  /* ------------------------------------------------------------------ */
+
+  function loadChecklist() {
+    try {
+      const raw = localStorage.getItem(CHECK_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') state.checklist = parsed;
+      }
+    } catch (_) {
+      state.checklist = {};
+    }
+  }
+
+  function saveChecklist() {
+    try {
+      localStorage.setItem(CHECK_KEY, JSON.stringify(state.checklist));
+    } catch (_) {
+      /* file:// or private mode: checklist stays in memory */
+    }
+  }
+
+  function syncChecklist() {
+    let checked = 0;
+    el.checklistInputs.forEach((input) => {
+      input.checked = !!state.checklist[input.dataset.check];
+      if (input.checked) checked += 1;
+    });
+    const total = el.checklistInputs.length || 8;
+    if (el.checkProgress) el.checkProgress.textContent = checked + ' / ' + total;
+    if (el.checkBar) el.checkBar.style.width = Math.round((checked / total) * 100) + '%';
+  }
+
+  function resetChecklist() {
+    state.checklist = {};
+    saveChecklist();
+    syncChecklist();
+    reviewToast('评审清单已重置');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* review screen navigation                                            */
+  /* ------------------------------------------------------------------ */
+
+  function goto(target) {
+    if (target === 'pair') {
+      closeOverlays();
+      setPaired(false);
+      state.digits = '';
+      renderPin();
+      showScreen('pair');
+      return;
+    }
+    if (target === 'chat') {
+      closeOverlays();
+      setPaired(true);
+      showScreen('chat');
+      return;
+    }
+    if (target === 'drawer') {
+      closeOverlays();
+      setPaired(true);
+      showScreen('chat');
+      setTimeout(openDrawer, 120);
+      return;
+    }
+    if (target === 'quick') {
+      closeOverlays();
+      setPaired(true);
+      showScreen('chat');
+      setTimeout(openSheet, 120);
+      return;
+    }
+    if (target === 'settings') {
+      openSettings();
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* event wiring                                                        */
+  /* ------------------------------------------------------------------ */
+
+  function bindEvents() {
+    /* --- pairing keypad / links --- */
+    if (el.keypad) {
+      el.keypad.addEventListener('click', (event) => {
+        const key = event.target.closest('[data-key]');
+        if (!key) return;
+        const value = key.dataset.key;
+        if (value === 'back') pressBackspace();
+        else pressDigit(value);
+      });
+    }
+    const scanPair = $('scanPair');
+    if (scanPair) {
+      scanPair.addEventListener('click', () => appToast('扫码配对即将支持，当前请使用 6 位 PIN'));
+    }
+    const pairApk = $('pairApk');
+    if (pairApk) {
+      pairApk.addEventListener('click', () => appToast('预览：APK 下载入口 → /m/download/DSH-Mobile.apk'));
+    }
+
+    /* --- capsule --- */
+    if (el.capsuleRefresh) el.capsuleRefresh.addEventListener('click', refreshAction);
+    if (el.capsuleMore) el.capsuleMore.addEventListener('click', () => openSheet());
+
+    /* --- dock --- */
+    if (el.dock) {
+      el.dock.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-dock]');
+        if (!button) return;
+        const action = button.dataset.dock;
+        if (action === 'sessions') openDrawer();
+        else if (action === 'new') newSession();
+        else if (action === 'refresh') refreshAction();
+        else if (action === 'more') openSheet();
+      });
+    }
+
+    /* --- drawer / sheet / scrim --- */
+    if (el.scrim) el.scrim.addEventListener('click', closeOverlays);
+    $$('[data-close-drawer]').forEach((button) => button.addEventListener('click', closeDrawer));
+    $$('[data-close-sheet]').forEach((button) => button.addEventListener('click', closeSheet));
+    $$('[data-new-session]').forEach((button) => button.addEventListener('click', newSession));
+
+    if (el.sessionList) {
+      el.sessionList.addEventListener('click', (event) => {
+        const item = event.target.closest('[data-session-item]');
+        if (!item) return;
+        $$('[data-session-item]', el.sessionList).forEach((other) => other.classList.remove('is-active'));
+        item.classList.add('is-active');
+        closeDrawer();
+        const title = item.querySelector('.session-main b');
+        appToast('已切换到「' + (title ? title.textContent : '会话') + '」');
+      });
+    }
+    if (el.sessionSearch) {
+      el.sessionSearch.addEventListener('input', () => {
+        const keyword = el.sessionSearch.value.trim().toLowerCase();
+        $$('[data-session-item]', el.sessionList || document).forEach((item) => {
+          const text = item.textContent.toLowerCase();
+          item.hidden = keyword !== '' && !text.includes(keyword);
+        });
+      });
+    }
+
+    if (el.sheet) {
+      el.sheet.addEventListener('click', (event) => {
+        const action = event.target.closest('[data-quick]');
+        if (!action) return;
+        closeSheet();
+        const name = action.dataset.quick;
+        if (name === 'sessions') openDrawer();
+        else if (name === 'new') newSession();
+        else if (name === 'refresh') refreshAction();
+        else if (name === 'settings') openSettings();
+        else if (name === 'disconnect') disconnect();
+        else if (name === 'diagnostics') appToast('诊断：连接正常 · 延迟 12 ms · 最近错误 无');
+      });
+    }
+
+    /* --- settings actions --- */
+    if (el.app) {
+      el.app.addEventListener('click', (event) => {
+        const action = event.target.closest('[data-action]');
+        if (action) {
+          handleAction(action.dataset.action);
+          return;
+        }
+        const themeButton = event.target.closest('[data-set-theme]');
+        if (themeButton) {
+          applyTheme(themeButton.dataset.setTheme);
+          return;
+        }
+        const accentButton = event.target.closest('[data-set-accent]');
+        if (accentButton) {
+          applyAccent(accentButton.dataset.setAccent);
+          return;
+        }
+        if (event.target.closest('[data-action="back"]')) showScreen(state.paired ? 'chat' : 'pair');
+      });
+    }
+    const settingsBack = $('settingsBack');
+    if (settingsBack) settingsBack.addEventListener('click', () => showScreen(state.paired ? 'chat' : 'pair'));
+    const sendBtn = $('sendBtn');
+    if (sendBtn) {
+      sendBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        appToast('预览：消息发送为 mock，真机走真实 DSH 会话');
+      });
+    }
+    const composer = $('composer');
+    if (composer) composer.addEventListener('click', () => appToast('预览：输入框为 mock，真机为真实 GUI 输入区'));
+
+    /* --- review panel --- */
+    el.screenChips.forEach((chip) => {
+      chip.addEventListener('click', () => goto(chip.dataset.goto));
+    });
+    if (el.orientationSeg) {
+      el.orientationSeg.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-orient]');
+        if (!button) return;
+        setOrientation(button.dataset.orient);
+      });
+    }
+    el.themeOpts.forEach((opt) => {
+      opt.addEventListener('click', () => applyTheme(opt.dataset.themeOpt));
+    });
+    el.accentOpts.forEach((opt) => {
+      opt.addEventListener('click', () => applyAccent(opt.dataset.accentOpt));
+    });
+    if (el.fontScale) {
+      el.fontScale.addEventListener('input', () => applyFontScale(el.fontScale.value));
+    }
+    if (el.settingsFontScale) {
+      el.settingsFontScale.addEventListener('input', () => applyFontScale(el.settingsFontScale.value, 'settings'));
+    }
+    if (el.radiusScale) {
+      el.radiusScale.addEventListener('input', () => applyRadius(el.radiusScale.value));
+    }
+    const resetDesign = $('resetDesign');
+    if (resetDesign) resetDesign.addEventListener('click', resetDesignVars);
+    const resetChecks = $('resetChecks');
+    if (resetChecks) resetChecks.addEventListener('click', resetChecklist);
+    const copyUrl = $('copyUrl');
+    if (copyUrl) copyUrl.addEventListener('click', copyPreviewUrl);
+
+    el.checklistInputs.forEach((input) => {
+      input.addEventListener('change', () => {
+        state.checklist[input.dataset.check] = input.checked;
+        saveChecklist();
+        syncChecklist();
+      });
+    });
+
+    /* --- capsule auto-hide on chat scroll --- */
+    if (el.chatScroll) {
+      let lastTop = 0;
+      el.chatScroll.addEventListener(
+        'scroll',
+        () => {
+          if (state.screen !== 'chat') return;
+          const top = el.chatScroll.scrollTop;
+          if (Date.now() < state.capsuleHoldUntil) {
+            lastTop = top;
+            return;
+          }
+          if (top > 48 && top > lastTop + 4) el.capsule.classList.add('is-hidden');
+          else if (top < lastTop - 4 || top <= 10) el.capsule.classList.remove('is-hidden');
+          lastTop = top;
+        },
+        { passive: true },
+      );
+    }
+
+    /* --- physical keyboard --- */
+    window.addEventListener('keydown', (event) => {
+      const tag = (event.target && event.target.tagName) || '';
+      const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
+      if (event.key === 'Escape') {
+        closeOverlays();
+        return;
+      }
+      if (typing || state.screen !== 'pair') return;
+      if (/^[0-9]$/.test(event.key)) {
+        event.preventDefault();
+        pressDigit(event.key);
+      } else if (event.key === 'Backspace') {
+        event.preventDefault();
+        pressBackspace();
+      } else if (event.key === 'Enter' && state.digits.length === 6) {
+        event.preventDefault();
+        showPairSuccess();
+      }
+    });
+
+    window.addEventListener('resize', scheduleScale);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* init                                                                */
+  /* ------------------------------------------------------------------ */
+
+  function init() {
+    loadChecklist();
+    syncChecklist();
+    applyTheme(state.theme);
+    applyAccent(state.accent);
+    applyFontScale(state.fontScale);
+    applyRadius(state.radius);
+    setOrientation('portrait');
+    setPaired(false);
+    renderPin();
+    syncChips();
+    showScreen('pair');
+    bindEvents();
+    requestAnimationFrame(applyScale);
+    setTimeout(scheduleScale, 320);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+})();
+
+</script>
+</body>
+</html>

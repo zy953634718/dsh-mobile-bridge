@@ -1,0 +1,9 @@
+{
+  "name": "DSH Mobile Fixture",
+  "short_name": "DSH Mobile",
+  "start_url": "/m/",
+  "scope": "/m/",
+  "display": "standalone",
+  "background_color": "#06080c",
+  "theme_color": "#06080c"
+}

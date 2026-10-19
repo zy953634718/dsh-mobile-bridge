@@ -1,0 +1,14 @@
+# Normalize text files; keep scripts runnable on Windows/POSIX.
+* text=auto
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.sh text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.png binary
+*.jpg binary
+*.apk binary
+*.zip binary

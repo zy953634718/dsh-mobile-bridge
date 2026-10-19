@@ -1,0 +1,27 @@
+{
+  "name": "dsh-plugin-mobile-bridge",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "main": "lib/plugin.js",
+  "exports": {
+    ".": "./lib/plugin.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "description": "DSH Mobile Bridge: control the desktop DeepSeek Harness from a phone (LAN pairing, PWA shell, Android WebView APK, optional internet tunnel).",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "mobile",
+    "remote-control",
+    "android",
+    "pwa"
+  ]
+}

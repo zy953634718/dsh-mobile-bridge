@@ -1,0 +1,27 @@
+# Local test/DShome scratch (never publish)
+.test-home/
+
+# Node dependencies
+node_modules/
+
+# Release artifacts (uploaded as GitHub release assets instead)
+dist/
+
+# Android build outputs, local toolchain and signing key
+android/build/
+android/artifacts/
+android/toolchain/
+android/keystore/
+
+# Runtime downloads (cloudflared is fetched on demand by scripts/external-access.ps1)
+packages/dsh-plugin-mobile-bridge/tools/
+
+# Logs / transient test output
+*.log
+tests/artifacts/
+
+# OS / editor noise
+Thumbs.db
+.DS_Store
+.idea/
+.vscode/

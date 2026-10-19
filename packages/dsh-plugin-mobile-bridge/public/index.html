@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no, interactive-widget=resizes-content">
+<meta name="theme-color" content="#070b12">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="在手机上访问桌面 DeepSeek Harness：同一局域网内配对，安全地继续桌面会话。">
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DSH Mobile">
+<title>DSH Mobile</title>
+
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon-180.png">
+<link rel="stylesheet" href="./app.css?v=0.3.20">
+</head>
+<body>
+<!-- inline SVG sprite: 自包含图标，零外部请求 -->
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5.5 7.5 10 12l-4.5 4.5"/>
+      <path d="M12.5 16.5h6"/>
+    </symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 11a8 8 0 1 0-2.34 5.66"/>
+      <path d="M20 5v6h-6"/>
+    </symbol>
+    <symbol id="i-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 7h9M17 7h3M4 17h3M11 17h9"/>
+      <circle cx="15" cy="7" r="2"/>
+      <circle cx="9" cy="17" r="2"/>
+    </symbol>
+    <symbol id="i-sessions" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="3"/>
+      <path d="M9 4v16"/>
+    </symbol>
+    <symbol id="i-new" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 11.4a8 8 0 0 1-11.6 7.1L4 20l1.5-4.3A8 8 0 1 1 20 11.4Z"/>
+      <path d="M12 8.5v6M9 11.5h6"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="6.5"/>
+      <path d="m16 16 4.5 4.5"/>
+    </symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 6l12 12M18 6 6 18"/>
+    </symbol>
+    <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 5l-7 7 7 7"/>
+    </symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m6 9 6 6 6-6"/>
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3 5 6v5c0 4.4 3 8.3 7 10 4-1.7 7-5.6 7-10V6l-7-3Z"/>
+      <path d="m9 12 2 2 4-4"/>
+    </symbol>
+    <symbol id="i-android" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.15-.54.4.4 0 0 0-.54.14L16.87 9.1A10.7 10.7 0 0 0 12 8.13c-1.78 0-3.45.35-4.87.97L5.25 5.9a.4.4 0 0 0-.54-.14.4.4 0 0 0-.15.54L6.4 9.48C3.75 10.82 2 13.34 2 16.25h20c0-2.91-1.75-5.43-4.4-6.77ZM6.5 14.25a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8Zm11 0a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8Z"/>
+    </symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3"/>
+      <path d="M4 12h16"/>
+    </symbol>
+    <symbol id="i-backspace" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6H9.5L3 12l6.5 6H20a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1Z"/>
+      <path d="m12 9.5 5 5M17 9.5l-5 5"/>
+    </symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.7 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.7h.09A1.7 1.7 0 0 0 10.12 3.14V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15.1 4.7a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.3 9v.09a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15Z"/>
+    </symbol>
+    <symbol id="i-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 12h4l2.5-6 5 12 2.5-6h4"/>
+    </symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 7V3M15 7V3"/>
+      <path d="M7 7h10v3a5 5 0 0 1-10 0Z"/>
+      <path d="M12 15v6"/>
+    </symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="9" width="11" height="11" rx="2.5"/>
+      <path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-7A2.5 2.5 0 0 0 3 5.5v7A2.5 2.5 0 0 0 5.5 15"/>
+    </symbol>
+    <symbol id="i-wifi-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4-2.3M19 13a10 10 0 0 0-6.6-2.9"/>
+      <path d="M2 8.8a15 15 0 0 1 5-2.6M22 8.8a15 15 0 0 0-9-3.6"/>
+      <path d="M12 20h.01"/>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="8.5"/>
+      <path d="M12 11v5M12 8h.01"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4v10M8 10.5l4 4 4-4"/>
+      <path d="M4 19h16"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="app" id="app" data-screen="boot" data-conn="connecting" data-mode="browser" data-capsule="shown" data-bars="hidden" data-keyboard="closed">
+  <div class="ambient" aria-hidden="true">
+    <span class="ambient-glow g1"></span>
+    <span class="ambient-glow g2"></span>
+    <span class="ambient-glow g3"></span>
+    <span class="ambient-noise"></span>
+  </div>
+
+  <!-- 悬浮状态胶囊（主界面） -->
+  <header class="capsule" id="capsule">
+    <span class="capsule-dot" aria-hidden="true"></span>
+    <div class="capsule-text">
+      <b>DSH Mobile</b>
+      <small id="capsuleSub">正在连接…</small>
+    </div>
+    <button class="capsule-btn" id="reloadBtn" type="button" aria-label="刷新界面" title="刷新界面">
+      <svg aria-hidden="true"><use href="#i-refresh"/></svg>
+    </button>
+    <button class="capsule-btn" id="capsuleMore" type="button" aria-label="更多操作" title="更多操作">
+      <svg aria-hidden="true"><use href="#i-more"/></svg>
+    </button>
+  </header>
+
+  <!-- 胶囊隐藏时的状态点 / 唤出入口（浏览器模式） -->
+  <button class="status-peek" id="statusPeek" type="button" aria-label="显示工具栏" title="显示工具栏">
+    <span class="conn-dot" aria-hidden="true"></span>
+    <svg aria-hidden="true"><use href="#i-chevron-down"/></svg>
+  </button>
+
+  <!-- APK 全屏模式：不占布局的可恢复热区 -->
+  <button class="app-handle" id="appHandle" type="button" aria-label="显示工具栏" title="显示工具栏">
+    <span class="conn-dot" aria-hidden="true"></span>
+    <span class="app-handle-grip" aria-hidden="true"></span>
+    <span class="app-handle-spacer" aria-hidden="true"></span>
+  </button>
+
+  <div class="offline-banner" id="offlineBanner" role="status" aria-live="polite">
+    <svg aria-hidden="true"><use href="#i-wifi-off"/></svg>
+    <span class="offline-text" id="offlineText">无法连接桌面端，请确认手机与电脑在同一 Wi-Fi。</span>
+    <button id="offlineRetry" type="button">重试</button>
+  </div>
+
+  <!-- ============ 启动 / 检查登录状态 ============ -->
+  <section class="screen screen-boot is-active" data-screen-id="boot" id="bootView" aria-label="正在连接桌面端">
+    <div class="boot-inner">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="boot-text" id="bootText">正在检查登录状态…</p>
+    </div>
+  </section>
+
+  <!-- ============ 配对页 ============ -->
+  <section class="screen screen-pair" data-screen-id="pair" id="pairingView" hidden>
+    <div class="pairing-safe-pad"></div>
+    <div class="pair-layout">
+      <div class="pair-hero">
+        <span class="logo-mark lg" aria-hidden="true"><svg><use href="#i-logo"/></svg></span>
+        <h2>连接桌面 DSH</h2>
+        <p>同一 Wi-Fi 下，把桌面工作区装进手机</p>
+        <span class="pair-status" id="pairStatus"><span class="dot" aria-hidden="true"></span><span id="pairStatusText">等待配对</span></span>
+      </div>
+
+      <form class="pair-card" id="pairForm" novalidate autocomplete="off">
+        <div class="pair-card-head">
+          <span>配对 PIN</span>
+          <span class="hint-chip">6 位数字</span>
+        </div>
+        <div class="pin-row" id="pinRow" role="group" aria-label="6 位配对 PIN">
+          <input class="pin-cell" type="text" inputmode="numeric" maxlength="1" readonly aria-label="PIN 第 1 位" data-pin-index="0">
+          <input class="pin-cell" type="text" inputmode="numeric" maxlength="1" readonly aria-label="PIN 第 2 位" data-pin-index="1">
+          <input class="pin-cell" type="text" inputmode="numeric" maxlength="1" readonly aria-label="PIN 第 3 位" data-pin-index="2">
+          <input class="pin-cell" type="text" inputmode="numeric" maxlength="1" readonly aria-label="PIN 第 4 位" data-pin-index="3">
+          <input class="pin-cell" type="text" inputmode="numeric" maxlength="1" readonly aria-label="PIN 第 5 位" data-pin-index="4">
+          <input class="pin-cell" type="text" inputmode="numeric" maxlength="1" readonly aria-label="PIN 第 6 位" data-pin-index="5">
+        </div>
+        <p class="pair-hint" id="pairHint" role="status" aria-live="polite">输入桌面配对页显示的 6 位数字</p>
+        <div class="keypad" id="keypad" role="group" aria-label="数字键盘">
+          <button class="keypad-key" type="button" data-key="1">1</button>
+          <button class="keypad-key" type="button" data-key="2">2</button>
+          <button class="keypad-key" type="button" data-key="3">3</button>
+          <button class="keypad-key" type="button" data-key="4">4</button>
+          <button class="keypad-key" type="button" data-key="5">5</button>
+          <button class="keypad-key" type="button" data-key="6">6</button>
+          <button class="keypad-key" type="button" data-key="7">7</button>
+          <button class="keypad-key" type="button" data-key="8">8</button>
+          <button class="keypad-key" type="button" data-key="9">9</button>
+          <span class="keypad-key is-blank" aria-hidden="true"></span>
+          <button class="keypad-key" type="button" data-key="0">0</button>
+          <button class="keypad-key" type="button" data-key="back" aria-label="删除">
+            <svg aria-hidden="true"><use href="#i-backspace"/></svg>
+          </button>
+        </div>
+        <div class="pair-links">
+          <button class="pair-link" id="scanPair" type="button">
+            <svg aria-hidden="true"><use href="#i-scan"/></svg>扫码配对<span class="soon">即将支持</span>
+          </button>
+          <button class="pair-link" id="pairApk" type="button">
+            <svg aria-hidden="true"><use href="#i-android"/></svg>下载安卓 App
+          </button>
+        </div>
+        <div class="pair-fallback" id="pairFallback" hidden>
+          <p id="pairFallbackText">自动登录未完成，可手动完成登录。</p>
+          <div class="pair-fallback-actions">
+            <button class="set-btn is-primary" id="manualLoginBtn" type="button">手动登录</button>
+            <button class="set-btn" id="retryAutoBtn" type="button">重试自动登录</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="pair-foot">
+        <p class="secure-line">
+          <svg aria-hidden="true"><use href="#i-shield"/></svg>
+          仅限同一局域网 · 数据不经过云端
+        </p>
+        <button class="link-btn" id="pairChangeServer" type="button">更换服务器地址</button>
+        <button class="link-btn app-only" id="appSettingsBtn" type="button" hidden>App 设置</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 主界面：真实 DSH GUI iframe ============ -->
+  <section class="screen screen-chat" data-screen-id="chat" id="chatView" hidden aria-label="DeepSeek Harness 桌面界面">
+    <div class="frame-host" id="frameHost">
+      <iframe id="guiFrame" title="DeepSeek Harness" src="about:blank" allow="clipboard-read; clipboard-write; microphone; camera; fullscreen"></iframe>
+      <div class="frame-loading" id="frameLoading">
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="frame-loading-text">正在加载桌面界面…</p>
+      </div>
+      <div class="frame-error" id="frameError" hidden>
+        <div class="frame-error-card">
+          <h3>桌面界面加载失败</h3>
+          <p id="frameErrorText">请检查手机与电脑是否在同一 Wi-Fi，或服务器地址是否正确。</p>
+          <div class="frame-error-actions">
+            <button class="set-btn is-primary" id="frameErrorRetry" type="button">重试</button>
+            <button class="set-btn" id="frameErrorSettings" type="button">服务器设置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 设置与诊断 ============ -->
+  <section class="screen screen-settings" data-screen-id="settings" id="settingsView" hidden>
+    <div class="settings-scroll">
+      <header class="settings-head">
+        <button class="icon-ghost" id="settingsBack" type="button" aria-label="返回">
+          <svg aria-hidden="true"><use href="#i-back"/></svg>
+        </button>
+        <div>
+          <h2>设置与诊断</h2>
+          <p>连接、外观与运行状态</p>
+        </div>
+        <span class="conn-pill" id="settingsConnPill"><span class="dot" aria-hidden="true"></span><span id="settingsConnText">已连接</span></span>
+      </header>
+
+      <div class="settings-body">
+        <section class="settings-card">
+          <h3>连接</h3>
+          <div class="set-field">
+            <label class="set-field-label" for="settingsServerInput">服务器地址（局域网或外网）</label>
+            <input class="set-input mono" id="settingsServerInput" type="url" inputmode="url" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="电脑IP:7860/m/  或  外网隧道地址/m/?app=1">
+            <div class="set-actions">
+              <button class="set-btn is-primary" id="settingsServerApply" type="button">保存并连接</button>
+              <button class="set-btn" id="settingsServerReset" type="button">恢复当前地址</button>
+            </div>
+            <p class="settings-note-line">切换到外网地址后，如出现配对页，请输入桌面端脚本打印的访问码（6 位 PIN）。外网地址由 <span class="mono">external-access.ps1</span> 生成。</p>
+          </div>
+          <div class="set-row"><span class="k">当前地址</span><span class="v mono" id="settingsOrigin">—</span></div>
+          <div class="set-row"><span class="k">桌面端</span><span class="v mono" id="settingsHost">—</span></div>
+          <div class="set-row"><span class="k">状态</span><span class="v" id="settingsState"><span class="dot" aria-hidden="true"></span><span id="settingsStateText">检测中…</span></span></div>
+          <div class="set-row"><span class="k">运行模式</span><span class="v" id="settingsMode">浏览器</span></div>
+          <div class="set-actions">
+            <button class="set-btn" id="settingsReconnect" type="button">重新连接</button>
+            <button class="set-btn" id="settingsAddressHelp" type="button">地址说明</button>
+          </div>
+        </section>
+
+        <section class="settings-card">
+          <h3>外观</h3>
+          <div class="set-row"><span class="k">主题</span><span class="v" id="settingsThemeLabel">深空</span></div>
+          <div class="settings-theme-row" id="themeRow">
+            <button type="button" data-set-theme="space" class="is-active">深空</button>
+            <button type="button" data-set-theme="midnight">极夜</button>
+            <button type="button" data-set-theme="nebula">幽蓝</button>
+          </div>
+          <div class="set-row"><span class="k">强调色</span><span class="v" id="settingsAccentLabel">电光蓝</span></div>
+          <div class="settings-accent-row" id="accentRow">
+            <button type="button" class="accent-opt is-active" data-set-accent="blue" aria-label="电光蓝"></button>
+            <button type="button" class="accent-opt" data-set-accent="teal" aria-label="青碧"></button>
+            <button type="button" class="accent-opt" data-set-accent="violet" aria-label="紫电"></button>
+            <button type="button" class="accent-opt" data-set-accent="green" aria-label="森绿"></button>
+          </div>
+          <div class="font-scale-row">
+            <span style="font-size: var(--fs-xs); color: var(--text-2)">字号</span>
+            <input id="fontScaleInput" type="range" min="90" max="115" step="5" value="100" aria-label="字号缩放">
+            <span id="fontScaleOut">100%</span>
+          </div>
+        </section>
+
+        <section class="settings-card">
+          <h3>安卓 App</h3>
+          <div class="set-row"><span class="k">安装包</span><span class="v mono">DSH-Mobile.apk</span></div>
+          <div class="set-row"><span class="k">版本</span><span class="v" id="settingsApkVersion">v0.1.0</span></div>
+          <div class="set-actions">
+            <button class="set-btn is-primary" id="settingsDownloadApk" type="button">下载 / 更新 APK</button>
+            <button class="set-btn app-only" id="settingsNativeSettings" type="button" hidden>打开原生设置</button>
+          </div>
+          <p class="settings-note-line">APK 内打开时以全屏模式运行，保留系统安全区与顶部可恢复手势。</p>
+        </section>
+
+        <section class="settings-card" data-settings-target="diagnostics">
+          <h3>诊断</h3>
+          <div class="set-row"><span class="k">原生接口</span><span class="v" id="settingsNative">—</span></div>
+          <div class="set-row"><span class="k">快捷操作</span><span class="v" id="settingsQuick">—</span></div>
+          <div class="set-row"><span class="k">最近错误</span><span class="v" id="settingsLastError">无</span></div>
+          <div class="set-actions">
+            <button class="set-btn" id="copyDiagBtn" type="button">复制诊断</button>
+            <button class="set-btn" id="settingsRecheck" type="button">重新检测</button>
+            <button class="set-btn" id="settingsReload" type="button">重载界面</button>
+          </div>
+        </section>
+
+        <section class="settings-card is-danger">
+          <h3>危险操作</h3>
+          <div class="set-row"><span class="k">登录状态</span><span class="v" id="settingsPaired">已配对</span></div>
+          <div class="set-actions">
+            <button class="set-btn is-danger" id="disconnectBtn" type="button">断开连接并回到配对</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 遮罩 / 会话抽屉 / 快捷面板 ============ -->
+  <div class="scrim" id="scrim" hidden></div>
+
+  <aside class="drawer" id="drawer" aria-hidden="true" aria-label="会话抽屉">
+    <div class="drawer-head">
+      <div>
+        <h2>会话</h2>
+        <p id="drawerSubtitle">最近会话</p>
+      </div>
+      <button class="icon-ghost" type="button" data-close-drawer aria-label="关闭会话抽屉">
+        <svg aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <label class="search-field">
+      <svg aria-hidden="true"><use href="#i-search"/></svg>
+      <input id="sessionSearch" type="search" placeholder="搜索会话…" autocomplete="off">
+    </label>
+    <button class="new-session-btn" type="button" data-new-session>
+      <svg aria-hidden="true"><use href="#i-new"/></svg>新建会话
+    </button>
+    <div class="session-list" id="sessionList"></div>
+    <div class="drawer-fallback" id="drawerFallback" hidden>
+      <button class="set-btn is-primary" id="openGuiSessionsBtn" type="button">打开桌面会话列表</button>
+      <p>未能从桌面端读取会话标题时，会直接打开真实 GUI 的会话侧栏供你选择，功能不缺失。</p>
+    </div>
+    <div class="drawer-foot">
+      <span class="conn-pill"><span class="dot" aria-hidden="true"></span>桌面端在线</span>
+      <button class="text-btn" type="button" data-open-settings>设置</button>
+    </div>
+  </aside>
+
+  <section class="sheet" id="quickSheet" aria-hidden="true" aria-label="快捷操作面板">
+    <div class="grabber" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <div>
+        <h2>快捷操作</h2>
+        <p>常用动作一步直达</p>
+      </div>
+      <button class="icon-ghost" type="button" data-close-sheet aria-label="关闭快捷面板">
+        <svg aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="sheet-grid">
+      <button class="sheet-action" type="button" data-quick="sessions">
+        <svg aria-hidden="true"><use href="#i-sessions"/></svg>会话列表
+      </button>
+      <button class="sheet-action" type="button" data-quick="new">
+        <svg aria-hidden="true"><use href="#i-new"/></svg>新会话
+      </button>
+      <button class="sheet-action" type="button" data-quick="refresh">
+        <svg aria-hidden="true"><use href="#i-refresh"/></svg>刷新
+      </button>
+      <button class="sheet-action" id="diagBtn" type="button" data-quick="diagnostics">
+        <svg aria-hidden="true"><use href="#i-pulse"/></svg>诊断
+      </button>
+      <button class="sheet-action" type="button" data-quick="settings">
+        <svg aria-hidden="true"><use href="#i-gear"/></svg>设置
+      </button>
+      <button class="sheet-action is-danger" type="button" data-quick="disconnect">
+        <svg aria-hidden="true"><use href="#i-plug"/></svg>断开连接
+      </button>
+    </div>
+    <div class="sheet-status">
+      <span class="dot" aria-hidden="true"></span>
+      <div>
+        <b id="sheetStatusTitle">桌面端</b>
+        <small id="sheetStatusSub">—</small>
+      </div>
+      <button class="text-btn" type="button" data-quick="refresh">重连</button>
+    </div>
+    <p class="sheet-note">
+      真机映射：<b>会话 / 新会话</b>直接触发桌面 GUI 的对应按钮；刷新 / 更多为壳层本地动作。
+    </p>
+  </section>
+
+  <!-- ============ 底部原生 Dock ============ -->
+  <nav class="dock" id="dock" aria-label="主操作">
+    <button class="dock-btn" type="button" data-dock="sessions" aria-label="会话">
+      <svg aria-hidden="true"><use href="#i-sessions"/></svg><span>会话</span>
+    </button>
+    <button class="dock-btn dock-btn-primary" type="button" data-dock="new" aria-label="新建会话">
+      <span class="dock-fab"><svg aria-hidden="true"><use href="#i-new"/></svg></span><span>新建</span>
+    </button>
+    <button class="dock-btn" type="button" data-dock="refresh" aria-label="刷新">
+      <svg aria-hidden="true"><use href="#i-refresh"/></svg><span>刷新</span>
+    </button>
+    <button class="dock-btn" type="button" data-dock="more" aria-label="更多">
+      <svg aria-hidden="true"><use href="#i-more"/></svg><span>更多</span>
+    </button>
+  </nav>
+
+  <!-- 配对成功动效 -->
+  <div class="pair-success" id="pairSuccess" hidden>
+    <div class="success-ring">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4.5 12.5l5 5 10-11"/>
+      </svg>
+    </div>
+    <h3>配对成功</h3>
+    <p id="pairSuccessText">正在进入桌面工作区…</p>
+  </div>
+
+  <div class="toast" id="appToast" role="status" aria-live="polite"></div>
+</div>
+
+<noscript>
+  <div style="position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:#070b12;color:#eef2f8;font-family:sans-serif;text-align:center">
+    DSH Mobile 需要启用 JavaScript 才能运行。
+  </div>
+</noscript>
+
+<script src="./app.js?v=0.3.20" defer></script>
+</body>
+</html>

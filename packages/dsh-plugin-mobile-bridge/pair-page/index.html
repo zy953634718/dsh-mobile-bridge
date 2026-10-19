@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>DSH 手机配对 · Mobile Bridge</title>
+<style>
+  :root {
+    --bg: #06080c;
+    --bg-glow: radial-gradient(1200px 600px at 15% -10%, rgba(38, 105, 190, 0.22), transparent 60%);
+    --card: #0d1219;
+    --card-2: #101823;
+    --line: rgba(126, 168, 224, 0.16);
+    --text: #e8f1fb;
+    --muted: #8ba3bd;
+    --accent: #4ea1ff;
+    --accent-2: #5be1d0;
+    --warn: #ffb454;
+    --bad: #ff6b6b;
+    --ok: #37d67a;
+    --pin-bg: #0a1622;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--bg-glow), var(--bg);
+    color: var(--text);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px 56px;
+  }
+  .wrap { width: 100%; max-width: 720px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 42px; height: 42px; border-radius: 13px;
+    background: linear-gradient(135deg, #1d6fe0, #0f3d7a);
+    display: grid; place-items: center;
+    font-size: 21px; box-shadow: 0 8px 22px rgba(20, 90, 180, 0.35);
+  }
+  h1 { font-size: 20px; margin: 0; font-weight: 650; letter-spacing: 0.01em; }
+  .subtitle { margin: 2px 0 0; color: var(--muted); font-size: 12.5px; }
+  .status {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: rgba(14, 22, 32, 0.8);
+    color: var(--muted); font-size: 12.5px; white-space: nowrap;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px rgba(55, 214, 122, 0.8); }
+  .dot.off { background: var(--bad); box-shadow: 0 0 10px rgba(255, 107, 107, 0.8); }
+  .card {
+    background: linear-gradient(180deg, var(--card-2), var(--card));
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  }
+  .card h2 { margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .pin-row { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; margin-top: 6px; }
+  .pin { display: flex; gap: 10px; }
+  .pin span {
+    width: 54px; height: 68px; border-radius: 14px;
+    display: grid; place-items: center;
+    background: var(--pin-bg);
+    border: 1px solid rgba(94, 156, 232, 0.28);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 6px 18px rgba(0, 0, 0, 0.35);
+    font: 700 32px/1 "Consolas", "SFMono-Regular", monospace;
+    color: #cfe6ff;
+    letter-spacing: 0;
+  }
+  .pin-hint { color: var(--muted); font-size: 13px; max-width: 260px; }
+  .pin-hint strong { color: var(--text); font-weight: 600; }
+  .urls { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+  .urls li {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(10, 17, 26, 0.85);
+    border: 1px solid var(--line); border-radius: 13px;
+    padding: 10px 12px;
+  }
+  .urls a {
+    color: #9ecbff; text-decoration: none; font: 600 14px/1.35 "Consolas", monospace;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+  }
+  .urls a:hover { text-decoration: underline; }
+  .btn {
+    appearance: none; border: 1px solid rgba(94, 156, 232, 0.35);
+    background: rgba(25, 52, 84, 0.7); color: #cfe6ff;
+    font: 600 12.5px/1 -apple-system, "Microsoft YaHei", sans-serif;
+    padding: 9px 13px; border-radius: 9px; cursor: pointer; white-space: nowrap;
+    transition: filter 0.15s ease, transform 0.05s ease;
+  }
+  .btn:hover { filter: brightness(1.2); }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary { background: linear-gradient(135deg, #1d6fe0, #0f4c9e); border-color: rgba(140, 190, 255, 0.5); }
+  .muted { color: var(--muted); font-size: 13px; }
+  .steps { margin: 0; padding-left: 22px; color: var(--text); }
+  .steps li { margin: 8px 0; }
+  .steps a { color: #9ecbff; }
+  .empty {
+    border: 1px dashed rgba(255, 180, 84, 0.45); color: var(--warn);
+    border-radius: 12px; padding: 12px 14px; font-size: 13px; margin-top: 12px;
+  }
+  footer { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 12px; padding: 0 4px; }
+  .footer-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px;
+    background: rgba(14, 22, 32, 0.6); font-size: 11.5px; color: var(--muted);
+  }
+  .flash { animation: flash 0.5s ease; }
+  @keyframes flash { 0% { border-color: rgba(94, 156, 232, 0.9); } 100% { border-color: rgba(94, 156, 232, 0.28); } }
+  @media (max-width: 560px) {
+    body { padding: 22px 14px 36px; }
+    .pin span { width: 44px; height: 58px; font-size: 26px; }
+    .card { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">📱</div>
+      <div>
+        <h1>DSH 手机配对</h1>
+        <p class="subtitle">DeepSeek Harness · Mobile Bridge</p>
+      </div>
+    </div>
+    <div class="status" id="status"><span class="dot" id="status-dot"></span><span id="status-text">连接中…</span></div>
+  </header>
+
+  <section class="card">
+    <h2>当前配对 PIN</h2>
+    <div class="pin-row">
+      <div class="pin" id="pin" aria-label="配对 PIN"><span>·</span><span>·</span><span>·</span><span>·</span><span>·</span><span>·</span></div>
+      <div class="pin-hint">在手机端配对页面输入这 <strong>6 位数字</strong>。PIN 在每次 DSH 重启后随机生成，且仅在本机显示。</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>手机访问地址</h2>
+    <p class="muted" style="margin:0 0 4px">手机与电脑需处于同一局域网（同一 Wi-Fi）。用手机浏览器打开任一地址：</p>
+    <ul class="urls" id="urls"><li><span class="muted">正在读取…</span></li></ul>
+    <div class="empty" id="urls-empty" hidden>
+      未检测到局域网 IPv4 地址。请检查网络连接，或在插件配置 <code>cordis.patch.yml</code> 中设置 <code>publicHost</code>（例如 Tailscale 域名）后重启 DSH。
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>安卓 App（APK）</h2>
+    <p class="muted" style="margin:0 0 4px">推荐安装安卓 App：全屏、无地址栏、文件上传/下载更顺滑。也可以继续使用手机浏览器（PWA）。</p>
+    <ul class="urls" id="apk-urls"><li><span class="muted">正在检测…</span></li></ul>
+    <div class="muted" style="margin-top:10px">
+      在手机上下载 APK 后，按系统提示允许「安装未知来源应用」即可。首次打开可在 App 内修改电脑地址，无需重新打包。
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>使用方法</h2>
+    <ol class="steps">
+      <li>确保手机和电脑连接同一个 Wi-Fi / 局域网。</li>
+      <li>在手机浏览器中打开上面任意一个地址。</li>
+      <li>在手机页面输入上方 PIN，点击「配对」。</li>
+      <li>配对成功后会自动登录并进入 DSH 界面。</li>
+      <li>安卓手机可直接安装上面的 APK 获得全屏 App 体验；iPhone / 不安装 App 时可「添加到主屏幕」。</li>
+    </ol>
+    <div class="muted" style="margin-top:12px">
+      安全提示：PIN 页面只能在本机（127.0.0.1）打开；配对请求会限流，连续输错会被临时锁定。
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-meta">
+      <span class="badge">🔒 仅本机可访问</span>
+      <span id="target">目标：—</span>
+      <span id="updated">上次刷新：—</span>
+    </div>
+    <span>每 5 秒自动刷新</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  var REFRESH_MS = 5000;
+  var statusDot = document.getElementById('status-dot');
+  var statusText = document.getElementById('status-text');
+  var pinBox = document.getElementById('pin');
+  var urlsBox = document.getElementById('urls');
+  var urlsEmpty = document.getElementById('urls-empty');
+  var apkUrlsBox = document.getElementById('apk-urls');
+  var targetBox = document.getElementById('target');
+  var updatedBox = document.getElementById('updated');
+  var lastPin = '';
+  var lastApkHref = '';
+
+  function setOnline(online, message) {
+    statusDot.className = 'dot' + (online ? '' : ' off');
+    statusText.textContent = message || (online ? '桥接运行中' : '无法连接');
+  }
+
+  function renderPin(pin) {
+    var digits = String(pin || '');
+    var spans = pinBox.querySelectorAll('span');
+    for (var i = 0; i < spans.length; i += 1) {
+      spans[i].textContent = i < digits.length ? digits[i] : '·';
+    }
+    if (digits !== lastPin) {
+      lastPin = digits;
+      pinBox.classList.remove('flash');
+      void pinBox.offsetWidth;
+      pinBox.classList.add('flash');
+    }
+  }
+
+  function renderUrls(urls) {
+    urlsBox.textContent = '';
+    if (!Array.isArray(urls) || urls.length === 0) {
+      urlsEmpty.hidden = false;
+      return;
+    }
+    urlsEmpty.hidden = true;
+    urls.forEach(function (url) {
+      var item = document.createElement('li');
+      var link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = url;
+      link.title = '在手机浏览器打开 ' + url;
+      var copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'btn';
+      copy.textContent = '复制';
+      copy.addEventListener('click', function () { copyText(url, copy); });
+      var open = document.createElement('a');
+      open.className = 'btn primary';
+      open.href = url;
+      open.target = '_blank';
+      open.rel = 'noopener';
+      open.textContent = '打开';
+      item.appendChild(link);
+      item.appendChild(copy);
+      item.appendChild(open);
+      urlsBox.appendChild(item);
+    });
+  }
+
+  function apkUrlFor(pageUrl) {
+    try {
+      var parsed = new URL(pageUrl);
+      return parsed.origin + '/m/download/DSH-Mobile.apk';
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function renderApk(urls) {
+    if (!apkUrlsBox) return;
+    apkUrlsBox.textContent = '';
+    var first = Array.isArray(urls) && urls.length > 0 ? urls[0] : null;
+    var apkUrl = first ? apkUrlFor(first) : null;
+    if (!apkUrl) {
+      var none = document.createElement('li');
+      none.innerHTML = '<span class="muted">未检测到局域网地址，无法生成 APK 下载地址。</span>';
+      apkUrlsBox.appendChild(none);
+      return;
+    }
+    if (apkUrl === lastApkHref) return;
+    lastApkHref = apkUrl;
+    var item = document.createElement('li');
+    var link = document.createElement('a');
+    link.href = apkUrl;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = apkUrl;
+    var copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'btn';
+    copy.textContent = '复制';
+    copy.addEventListener('click', function () { copyText(apkUrl, copy); });
+    var open = document.createElement('a');
+    open.className = 'btn primary';
+    open.href = apkUrl;
+    open.target = '_blank';
+    open.rel = 'noopener';
+    open.textContent = '下载';
+    item.appendChild(link);
+    item.appendChild(copy);
+    item.appendChild(open);
+    apkUrlsBox.appendChild(item);
+
+    var note = document.createElement('li');
+    note.className = 'apk-size';
+    note.innerHTML = '<span class="muted">正在检查 APK…</span>';
+    apkUrlsBox.appendChild(note);
+    fetch('/m/download/DSH-Mobile.apk', { method: 'HEAD', cache: 'no-store' })
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        var bytes = Number(response.headers.get('content-length') || 0);
+        note.innerHTML = '<span class="muted">APK 已就绪' + (bytes > 0 ? ' · ' + (bytes / 1048576).toFixed(1) + ' MB' : '') + '，手机下载后按提示安装。</span>';
+      })
+      .catch(function () {
+        note.innerHTML = '<span class="muted">APK 暂未就绪（管理员尚未放入安装包），稍后刷新本页重试。</span>';
+      });
+  }
+
+  function copyText(text, button) {
+    var done = function (ok) {
+      if (!ok) return;
+      var previous = button.textContent;
+      button.textContent = '已复制';
+      setTimeout(function () { button.textContent = previous; }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { fallback(); });
+      return;
+    }
+    fallback();
+    function fallback() {
+      try {
+        var area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        var ok = document.execCommand('copy');
+        document.body.removeChild(area);
+        done(ok);
+      } catch (error) {
+        done(false);
+      }
+    }
+  }
+
+  function refresh() {
+    fetch('/m/pair/info', { cache: 'no-store', headers: { accept: 'application/json' } })
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
+      .then(function (info) {
+        renderPin(info.pin);
+        renderUrls(info.urls);
+        renderApk(info.urls);
+        if (info.targetOrigin) targetBox.textContent = '目标：' + info.targetOrigin;
+        var now = new Date();
+        updatedBox.textContent = '上次刷新：' + now.toLocaleTimeString('zh-CN', { hour12: false });
+        setOnline(true, '桥接运行中');
+      })
+      .catch(function (error) {
+        setOnline(false, '桥接不可用');
+        updatedBox.textContent = '刷新失败：' + (error && error.message ? error.message : error);
+      });
+  }
+
+  refresh();
+  setInterval(refresh, REFRESH_MS);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) refresh();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DSH Mobile</string>
+    <string name="setup_title">连接桌面 DSH</string>
+    <string name="setup_hint">输入电脑上的手机访问地址（局域网或外网隧道地址）</string>
+    <string name="setup_note">例如 http://192.168.x.y:7860/m/ 或外网地址 https://xxxx.lhr.life/m/?app=1（外网地址见桌面 external-access 脚本输出）</string>
+    <string name="connect">连接</string>
+    <string name="retry">在当前页面重试</string>
+    <string name="back_to_page">返回页面</string>
+    <string name="invalid_url">地址无效，请输入 http:// 或 https:// 开头的地址</string>
+    <string name="download_started">已开始下载</string>
+    <string name="exit_hint">再按一次退出，或输入地址后连接</string>
+</resources>

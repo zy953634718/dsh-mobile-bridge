@@ -1,0 +1,176 @@
+{
+  "startedAt": "2026-10-19T08:42:42.917Z",
+  "bridge": "http://127.0.0.1:7876",
+  "chrome": "C:\\Users\\95363\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe",
+  "viewport": "390x844 @3x mobile",
+  "steps": [
+    {
+      "name": "browser: pairing view renders at 390x844",
+      "ok": true,
+      "details": "",
+      "extra": {
+        "screen": "pair",
+        "pinCells": 6,
+        "keypadKeys": 11,
+        "apkEntry": "下载安卓 App"
+      },
+      "durationMs": 1464
+    },
+    {
+      "name": "browser: keypad pairing -> real DSH GUI + glass Dock",
+      "ok": true,
+      "details": "",
+      "extra": {
+        "guiTitle": "DeepSeek Harness",
+        "bodyTextLength": 59,
+        "collapsedRail": true,
+        "dockVisible": true
+      },
+      "durationMs": 3627
+    },
+    {
+      "name": "dock 会话: hidden rail -> workspace-only real sidebar -> full width",
+      "ok": true,
+      "details": "",
+      "extra": {
+        "railHidden": "hidden",
+        "railWidth": 1,
+        "mainLeft": 0,
+        "mainWidth": 390,
+        "expandedSidebarWidth": 217,
+        "hiddenSidebarChrome": "13/13",
+        "workspaceVisible": false,
+        "sheetActions": 7,
+        "newSessionToast": "已新建会话"
+      },
+      "durationMs": 2616
+    },
+    {
+      "name": "guard: add-workspace dialog entries hidden, switcher still usable",
+      "ok": true,
+      "details": "",
+      "extra": {
+        "mode": "empty-workspace",
+        "chooserDisplay": "none",
+        "chooserBlocked": true,
+        "guardHit": 0,
+        "blockedAction": "选择工作区 | 选择工作区",
+        "toast": "手机端暂不支持，请在电脑端打开/新建工作区",
+        "bodyPreview": "📱 手机连接 工作区 暂无会话 探索未至之境 预览版 标准模式 选择一个工作区开始"
+      },
+      "durationMs": 790
+    },
+    {
+      "name": "apk mode: UA suffix + ?app=1 gives full-screen native layout",
+      "ok": true,
+      "details": "",
+      "extra": {
+        "capsuleHiddenOpacity": 0,
+        "iframeTopPx": 0,
+        "iframeHeightPx": 756,
+        "dockVisible": true,
+        "handleHeightPx": 18,
+        "topInset": "0px",
+        "reusesCookie": true,
+        "revealOnTap": true,
+        "revealedCapsuleOpacity": 0.9
+      },
+      "durationMs": 2738
+    },
+    {
+      "name": "no console errors / uncaught exceptions",
+      "ok": true,
+      "details": "",
+      "extra": {
+        "benign": 0
+      },
+      "durationMs": 0
+    }
+  ],
+  "screenshots": [
+    "C:\\Users\\95363\\Documents\\deepseek-harness\\default-workspace\\.test-home\\ui-shots-v9\\optimized-pair.png",
+    "C:\\Users\\95363\\Documents\\deepseek-harness\\default-workspace\\.test-home\\ui-shots-v9\\optimized-main.png",
+    "C:\\Users\\95363\\Documents\\deepseek-harness\\default-workspace\\.test-home\\ui-shots-v9\\optimized-sidebar.png",
+    "C:\\Users\\95363\\Documents\\deepseek-harness\\default-workspace\\.test-home\\ui-shots-v9\\optimized-quick-actions.png",
+    "C:\\Users\\95363\\Documents\\deepseek-harness\\default-workspace\\.test-home\\ui-shots-v9\\optimized-sidebar-guard.png",
+    "C:\\Users\\95363\\Documents\\deepseek-harness\\default-workspace\\.test-home\\ui-shots-v9\\optimized-apk.png"
+  ],
+  "quickActionSelectors": null,
+  "quickActionProof": null,
+  "sidebarProof": {
+    "quickActions": {
+      "sidebar": true,
+      "newSession": true
+    },
+    "collapsed": {
+      "grid": "0px 390px 0px",
+      "firstVisibility": "hidden",
+      "firstWidth": 1,
+      "centerLeft": 0,
+      "centerWidth": 390,
+      "viewportWidth": 390,
+      "dockActive": false,
+      "drawerOpen": false
+    },
+    "expanded": {
+      "sidebarWidth": 217.15625,
+      "sidebarText": "工作区 暂无会话",
+      "workspaceText": "选择工作区 选择工作区",
+      "chromeTotal": 13,
+      "chromeHidden": 13,
+      "workspaceVisible": false,
+      "emptyWorkspace": true,
+      "dockActive": true,
+      "drawerOpen": false
+    },
+    "collapsedAgain": {
+      "firstVisibility": "hidden",
+      "firstWidth": 1,
+      "centerLeft": 0.46875,
+      "dockActive": false,
+      "drawerOpen": false
+    },
+    "sheet": {
+      "count": 7,
+      "hasDiag": true
+    },
+    "newSessionToast": "已新建会话"
+  },
+  "apkMode": {
+    "appMode": true,
+    "screen": "chat",
+    "paired": true,
+    "frameLoaded": true,
+    "mode": "apk",
+    "bars": "hidden",
+    "capsuleOpacity": 0,
+    "handleDisplay": "flex",
+    "handlePosition": "absolute",
+    "handleHeight": 18,
+    "handleTop": 0,
+    "iframeTop": 0,
+    "iframeHeight": 756,
+    "iframeBottom": 756,
+    "frameHostTop": 0,
+    "viewportHeight": 844,
+    "dockOpacity": 1,
+    "topInset": "0px",
+    "apkClass": true,
+    "railHidden": "hidden",
+    "railWidth": 1,
+    "revealed": {
+      "bars": "shown",
+      "capsuleOpacity": 0.901521
+    }
+  },
+  "consoleErrors": [],
+  "pass": true,
+  "benignConsoleErrors": 0,
+  "finishedAt": "2026-10-19T08:42:55.877Z",
+  "durationMs": 12960,
+  "summary": {
+    "passed": 6,
+    "failed": [],
+    "total": 6
+  }
+}

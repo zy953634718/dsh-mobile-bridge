@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_bg">#0B0F19</color>
+    <color name="panel_bg">#0B0F19</color>
+    <color name="input_bg">#131A2A</color>
+    <color name="input_stroke">#26324A</color>
+    <color name="accent">#2563EB</color>
+    <color name="accent_pressed">#1D4ED8</color>
+    <color name="on_accent">#FFFFFF</color>
+    <color name="text_primary">#E8EEF7</color>
+    <color name="text_secondary">#8A97AB</color>
+    <color name="text_muted">#6B7A90</color>
+    <color name="error">#FF6B6B</color>
+    <color name="divider">#1E293B</color>
+</resources>

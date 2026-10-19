@@ -1,0 +1,29 @@
+# dsh-plugin-mobile-bridge - bundle patch layer.
+#
+# One host plugin row: a LAN listener that reverse-proxies the running DSH Web
+# GUI (ctx.webServer.getOrigin()) and gates phone access behind a 6-digit PIN
+# pairing flow backed by ctx.connection.authenticatedUrl().
+#
+# Patch rows replace the whole `config` when a later layer targets this id, so
+# every supported key is restated here with its default. All keys are optional:
+#   enabled      false disables the LAN listener without uninstalling.
+#   bindHost     bind address of the bridge listener; 0.0.0.0 = every interface.
+#   port         bridge listener port; 0 lets the OS assign one.
+#   publicHost   host authority (optionally host:port) used in pairing URLs,
+#                e.g. a Tailscale MagicDNS name; wins over LAN auto-detection.
+#   pin          fixed 6-digit PIN for tests/dev only; null = random per process.
+#   pairAttempts failed pairing attempts per IP per 10 min before HTTP 429.
+#   guiButton    true injects a "phone connect" discovery button into the
+#                desktop GUI (loopback hostnames only); false disables it.
+
+- insert:
+    - id: mobile-bridge
+      name: dsh-plugin-mobile-bridge
+      config:
+        enabled: true
+        bindHost: 0.0.0.0
+        port: 7860
+        publicHost: null
+        pin: null
+        pairAttempts: 8
+        guiButton: true
