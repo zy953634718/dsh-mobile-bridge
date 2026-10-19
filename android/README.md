@@ -254,3 +254,7 @@ APK 同时打了 v1(JAR)/v2/v3 三种签名（ZIP 里有 `META-INF/MANIFEST.MF`�
 - 版本：versionCode **5** / versionName **0.2.3**；文件 `android/build/DSH-Mobile-0.2.3.apk`，大小 **70,678 字节**，SHA-256 `850120E6BFE87B0A22F91FB7F38C4D31FD46372413718B695323CFF7E74B570B`。
 - 修复：全屏（edge-to-edge）窗口下软键盘不会自动 resize，导致聊天输入框被拼音输入法/候选词条挡住。现在通过 `WindowInsets.Type.ime()` 监听键盘高度并收缩 WebView（键盘关闭时按导航栏高度留白），输入框始终在键盘上方。
 - 页面侧 v0.3.20：聚焦输入框/窗口 resize 后多次重算视口高度，作为 WebView 兼容兜底。
+
+## macOS 用户
+
+APK 构建脚本 `build.ps1` 依赖 Windows 工具链（aapt2/javac/d8/apksigner）；macOS 用户**无需构建 APK**，直接从 GitHub Release 下载 `DSH-Mobile-0.2.3.apk` 安装到安卓手机即可。
