@@ -8,6 +8,8 @@
 
 > v0.3.6 · 仅限**同一局域网**（无云端中继）· 手机端为「沉浸式原生」重设计（H5 与安卓 App 同源）· 安卓安装包为本地自签名侧载包。
 
+> 仓库：<https://github.com/zy953634718/dsh-mobile-bridge> · 发布包 / APK 下载：<https://github.com/zy953634718/dsh-mobile-bridge/releases>
+
 ## 界面
 
 | 手机 App 配对 | 主界面（无侧边栏，全宽） | 点 Dock「会话」弹出侧边栏 |
@@ -138,6 +140,16 @@ docs/media/                          真实运行截图 + 配对/APK 下载二�
 
 详细的配置、手动安装兜底、故障排查见
 [`packages/dsh-plugin-mobile-bridge/README.md`](packages/dsh-plugin-mobile-bridge/README.md)。
+
+### 从 GitHub Release 安装
+
+下载 [Release](https://github.com/zy953634718/dsh-mobile-bridge/releases) 里的 `dsh-plugin-mobile-bridge-v0.4.0.zip`，解压后：
+
+```powershell
+dsh plugin add <解压目录>\dsh-plugin-mobile-bridge
+```
+
+安卓用户在同一个 Release 里下载 `DSH-Mobile-0.2.3.apk` 安装即可。
 
 ## 使用
 

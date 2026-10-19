@@ -23,5 +23,13 @@
     "remote-control",
     "android",
     "pwa"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zy953634718/dsh-mobile-bridge.git"
+  },
+  "homepage": "https://github.com/zy953634718/dsh-mobile-bridge#readme",
+  "bugs": {
+    "url": "https://github.com/zy953634718/dsh-mobile-bridge/issues"
+  }
 }
