@@ -49,6 +49,7 @@
 | `pair-page/index.html` | 桌面配对页（中文、纯内联 CSS/JS、每 5 秒刷新 PIN 与地址）。 |
 | `public/` | 手机端 PWA 外壳（由 mobile-app 维护）。 |
 | `install.ps1` / `uninstall.ps1` | Windows 安装/卸载脚本（备份 profile、调用官方 `dsh plugin` 命令）。 |
+| `install.sh` / `uninstall.sh` | macOS / Linux 安装/卸载脚本（bash，等价于 PowerShell 版）。 |
 | `selftest/` | 插件自测：真实隔离 DSH 上的 HTTP/WS/配对代理测试与集成检查。 |
 
 ## 安装
@@ -212,7 +213,7 @@ Cookie 过期）；DSH 重启后需要重新配对。
 | --- | --- |
 | 重启后没有任何 `mobile-bridge:` 日志 | 确认安装到了**当前启动的 profile**；用 `--dump-config` 检查 `mobile-bridge` 行；确认 `dsh.profile.bundles` 含本包名。 |
 | 日志 `EADDRINUSE` / `could not start the LAN listener` | 端口被占用：`netstat -ano | findstr :7860`，换 `port` 或结束占用进程。DSH 本身不会因此崩溃。 |
-| 手机打不开地址 | ① 手机与电脑是否同一网段；② Windows 防火墙是否放行入站 TCP：`install.ps1 -Firewall` 或手动放行；③ 用了 VPN/虚拟网卡时用 `publicHost` 指定正确地址；④ 配对页 `urls` 列表里换一个地址试。 |
+| 手机打不开地址 | ① 手机与电脑是否同一网段；② 防火墙是否放行入站 TCP：Windows 用 `install.ps1 -Firewall`，macOS 在「系统设置 → 网络 → 防火墙 → 选项」放行 dsh；③ 用了 VPN/虚拟网卡时用 `publicHost` 指定正确地址；④ 配对页 `urls` 列表里换一个地址试。 |
 | 页面提示「桥接不可用」 | DSH 未运行或目标 origin 不可达；确认 DSH 的 Web 服务正常（桌面版默认 `http://127.0.0.1:6326`）。 |
 | 手机打开 `/m/` 正常，但配对后 GUI 仍是 401 | 重新配对一次；确认没有清理站点 Cookie；确认 DSH 没有重启（token 已变）。 |
 | 手机上看不到「手机连接」按钮 | 该按钮只在桌面 GUI 的回环 hostname 下注入，手机 iframe 中按设计不显示。 |

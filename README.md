@@ -10,6 +10,16 @@
 
 > 仓库：<https://github.com/zy953634718/dsh-mobile-bridge> · 发布包 / APK 下载：<https://github.com/zy953634718/dsh-mobile-bridge/releases>
 
+## 系统支持
+
+| 桌面端系统 | 插件安装方式 | 手机端 |
+| --- | --- | --- |
+| Windows 10/11（x64 / arm64） | `install.ps1`（PowerShell 5.1+） | PWA / 安卓 APK |
+| macOS 12+（Intel / Apple Silicon） | `install.sh`（bash 3.2+） | PWA / 安卓 APK |
+| Linux（x64 / arm64） | `install.sh`（bash 3.2+） | PWA / 安卓 APK |
+
+插件运行在 DSH 桌面进程内（只依赖 Node.js 内置模块）；手机 App 通过局域网访问电脑上的 DSH，与电脑是 Windows、macOS 还是 Linux 无关。
+
 ## 界面
 
 | 手机 App 配对 | 主界面（无侧边栏，全宽） | 点 Dock「会话」弹出侧边栏 |
@@ -72,7 +82,9 @@ packages/dsh-plugin-mobile-bridge/   DSH Bundle 插件（安装单元，零 npm 
   pair-page/                          桌面配对页（loopback-only，显示 PIN/网址）
   public/                             手机 App 静态资源（/m/，PWA 外壳 + 移动交互优化）
   public/download/                    安卓 APK 安装包（/m/download/DSH-Mobile.apk）
-  install.ps1 / uninstall.ps1         安装/卸载脚本（备份、-DryRun、-Firewall）
+  install.ps1 / uninstall.ps1         Windows 安装/卸载脚本（备份、-DryRun、-Firewall）
+  install.sh  / uninstall.sh          macOS / Linux 安装/卸载脚本（bash，备份、--dry-run）
+  scripts/external-access.ps1|.sh     外网隧道脚本（Windows / macOS·Linux）
   selftest/                           插件自测（35 项，见 selftest/README.md）
   README.md                           插件级详细文档（安装/配置/安全/排查）
 android/                              安卓 APK 源码与构建工具（手动 aapt2/javac/d8/apksigner，无需 Gradle）
@@ -88,10 +100,15 @@ docs/media/                          真实运行截图 + 配对/APK 下载二�
 ## 安装（安装到你的桌面 DSH）
 
 前置条件：Windows / macOS / Linux 上的 DeepSeek Harness 桌面端已安装且**至少启动过一次**
-（初始化 `%USERPROFILE%\.dsh\profiles\desktop`）；电脑与手机在同一局域网。
+（Windows 初始化 `%USERPROFILE%\.dsh\profiles\desktop`，macOS / Linux 初始化 `~/.dsh/profiles/desktop`）；电脑与手机在同一局域网。
 
-1. **完全退出 DeepSeek Harness**（托盘退出，确认任务管理器中没有 `DeepSeek Harness.exe`）。
-2. 在本工作区安装插件。**Windows** 用 PowerShell：
+1. **完全退出 DeepSeek Harness**：
+   - Windows：托盘退出，确认任务管理器中没有 `DeepSeek Harness.exe`；
+   - macOS：菜单栏 / Dock 退出，确认活动监视器中没有 `DeepSeek Harness`；
+   - Linux：结束正在运行的 DSH 进程。
+2. 在本工作区安装插件（任选与你系统对应的一种）：
+
+   **Windows（PowerShell）**
 
    ```powershell
    cd <本仓库路径>
@@ -101,16 +118,19 @@ docs/media/                          真实运行截图 + 配对/APK 下载二�
    常用参数：`-DryRun` 只预览不修改；`-Firewall` 自动添加 Windows 防火墙入站规则
    （需管理员）；`-Port 7860` 指定网关端口（需与配置一致）。
 
-   **macOS / Linux** 使用等价的 bash 脚本（自动定位 dsh CLI、备份 profile、支持 `--dry-run`）：
+   **macOS / Linux（bash）**
 
    ```bash
+   cd <本仓库路径>
    bash packages/dsh-plugin-mobile-bridge/install.sh
-   # 如果 dsh 不在 PATH 中（DSH 桌面端内置 CLI）：
+   # 若 dsh 不在 PATH（DSH 桌面端内置 CLI）：
    DSH_CLI=/path/to/dsh bash packages/dsh-plugin-mobile-bridge/install.sh
    ```
 
-   macOS 首次启动 DSH 时若提示「是否允许接受传入网络连接」，请点「允许」；
-   局域网 IP 可用 `ipconfig getifaddr en0` 查看。
+   macOS 提示：
+   - 首次启动 DSH 若系统提示「是否允许 dsh 接受传入网络连接」，请点「允许」；
+     也可在「系统设置 → 网络 → 防火墙 → 选项」中放行 dsh。
+   - 局域网 IP 用 `ipconfig getifaddr en0` 查看（有线网络可能是 `en1` 等）。
 3. **重新启动 DeepSeek Harness**。插件启动日志会打印：
 
    ```
@@ -154,13 +174,42 @@ docs/media/                          真实运行截图 + 配对/APK 下载二�
 
 ### 从 GitHub Release 安装
 
-下载 [Release](https://github.com/zy953634718/dsh-mobile-bridge/releases) 里的 `dsh-plugin-mobile-bridge-v0.4.0.zip`，解压后：
+下载 [Release](https://github.com/zy953634718/dsh-mobile-bridge/releases) 里的 `dsh-plugin-mobile-bridge-v0.4.1.zip`，解压后：
+
+**Windows：**
 
 ```powershell
 dsh plugin add <解压目录>\dsh-plugin-mobile-bridge
 ```
 
+**macOS / Linux：**
+
+```bash
+dsh plugin add <解压目录>/dsh-plugin-mobile-bridge
+# 或直接运行安装脚本：
+bash <解压目录>/dsh-plugin-mobile-bridge/install.sh
+```
+
 安卓用户在同一个 Release 里下载 `DSH-Mobile-0.2.3.apk` 安装即可。
+
+## 卸载
+
+先完全退出 DSH，再执行对应脚本（会自动备份 profile 配置）：
+
+**Windows：**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\packages\dsh-plugin-mobile-bridge\uninstall.ps1 -Profile desktop
+```
+
+**macOS / Linux：**
+
+```bash
+bash packages/dsh-plugin-mobile-bridge/uninstall.sh
+# 指定 profile：bash packages/dsh-plugin-mobile-bridge/uninstall.sh --profile desktop
+```
+
+之后重新启动 DSH 即可。
 
 ## 使用
 
@@ -175,14 +224,17 @@ dsh plugin add <解压目录>\dsh-plugin-mobile-bridge
 
 默认只支持同一 Wi-Fi。需要在外网（移动网络/公司网络）用手机控制桌面 DSH 时，可临时开一个隧道并用「访问码」配对：
 
+**Windows（PowerShell）：**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File packages\dsh-plugin-mobile-bridge\scripts\external-access.ps1
 ```
 
-macOS / Linux：
+**macOS / Linux（bash）：**
 
 ```bash
 bash packages/dsh-plugin-mobile-bridge/scripts/external-access.sh
+# 指定隧道：--provider serveo / --provider cloudflared
 ```
 
 脚本会打印：
@@ -190,7 +242,7 @@ bash packages/dsh-plugin-mobile-bridge/scripts/external-access.sh
 - **外网地址**：如 `https://xxxx.lhr.life/m/`
 - **访问码**：当前 6 位 PIN（与局域网配对同一个码）
 
-手机（4G/5G 或任意外网 Wi-Fi）打开外网地址 → 输入访问码 → 进入手机界面。可加参数切换隧道：`-Provider serveo`（更快；首次可能弹 Serveo 警告页，点「Continue to Site」）或 `-Provider cloudflared`（需本机能解析 trycloudflare 域名）。
+手机（4G/5G 或任意外网 Wi-Fi）打开外网地址 → 输入访问码 → 进入手机界面。可加参数切换隧道：`-Provider serveo`（更快；首次可能弹 Serveo 警告页，点「Continue to Site」）或 `-Provider cloudflared`（需本机能解析 trycloudflare 域名）。macOS / Linux 对应参数为 `--provider serveo` / `--provider cloudflared`，cloudflared 会按 Apple Silicon / Intel / Linux 架构自动下载。
 
 安全说明：
 
@@ -234,7 +286,9 @@ patch 语义是整块替换 config，覆盖时需重述全部想保留的键**�
 
 | 现象 | 处理 |
 | --- | --- |
-| 手机打不开页面 | 确认同一 Wi-Fi、电脑 IP 正确；Windows 防火墙放行 7860（安装时加 `-Firewall` 或手动添加）；`ipconfig` 查看 IPv4 |
+| 手机打不开页面（Windows） | 确认同一 Wi-Fi、电脑 IP 正确；Windows 防火墙放行 7860（安装时加 `-Firewall` 或手动添加）；`ipconfig` 查看 IPv4 |
+| 手机打不开页面（macOS） | 确认 Mac 与手机同一 Wi-Fi；「系统设置 → 网络 → 防火墙 → 选项」允许 dsh；Mac 局域网 IP 用 `ipconfig getifaddr en0` 查看 |
+| macOS 找不到 dsh CLI | 终端运行 `command -v dsh`；若 DSH 桌面端内置 CLI，用 `DSH_CLI=/path/to/dsh bash install.sh` |
 | 页面提示需要配对 / 401 | PIN 已过期（DSH/插件重启会换 PIN），回桌面配对页重新查看并配对 |
 | 配对后仍空白/401 | 手机浏览器禁用 Cookie/无痕模式；或桌面 DSH 重启导致旧 Cookie 失效 → 清除该站点数据后重新配对 |
 | 提示 PIN 错误过多 | 等 10 分钟或重启 DSH 重置 PIN |
